@@ -132,57 +132,57 @@
         <translation>Wybierz napisy do pobrania: </translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="160"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="163"/>
         <source>Downloading subtitles...</source>
         <translation>Pobieranie napisow...</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="163"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="167"/>
         <source>Unable to download subtitles!</source>
         <translation>Nie udalo sie pobrac napisow!</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="167"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="171"/>
         <source>Unpacking subtitles...</source>
         <translation>Rozpakowywanie napisow...</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="169"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="173"/>
         <source>Failed to unpack subtitles!</source>
         <translation>Nie udalo sie rozpakowac napisow!</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="174"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="178"/>
         <source>Post-processing subtitles file...</source>
         <translation>Przetwarzanie napisow...</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="178"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="182"/>
         <source>Adjusting subtitles...</source>
         <translation>Dopasowywanie napisów...</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="180"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="184"/>
         <source>Could not adjust subtitles!</source>
         <translation>Nie udało się dopasować napisów!</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="191"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="195"/>
         <source>Downloading subtitles for &apos;%1&apos; [%2/%3]</source>
         <translation>Pobieranie napisow dla &apos;%1&apos; [%2/%3]</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="199"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="203"/>
         <source>No permission to write to the directory &apos;%1&apos;!</source>
         <translation>Brak uprawnień zapisu do katalogu &apos;%1&apos;!</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="210"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="216"/>
         <source>Subtitles not found!</source>
         <translation>Nie znaleziono napisow!</translation>
     </message>
     <message numerus="yes">
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="242"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="255"/>
         <source>Processing of remaining %n file(s) was ignored due to critical error.</source>
         <translation>
             <numerusform>Pobieranie pozostalego 1 pliku przerwane z powodu bledu.</numerusform>
@@ -261,54 +261,54 @@
 <context>
     <name>GetThread</name>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="279"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="287"/>
         <source>Checking permissions of the video directory...</source>
         <translation>Sprawdzanie uprawnień do katalogu z filmem...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="282"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="290"/>
         <source>No permission to write to the directory &apos;%1&apos;!</source>
         <translation>Brak uprawnień zapisu do katalogu &apos;%1&apos;!</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="290"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="298"/>
         <source>Calculating checksum of the file...</source>
         <translation>Obliczanie sumy kontrolnej pliku...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="303"/>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="319"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="311"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="327"/>
         <source>Searching for subtitles [%1] (%2)...</source>
         <translation>Szukanie napisów [%1] (%2)...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="309"/>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="333"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="317"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="341"/>
         <source>Searching for subtitles in alternative language [%1] (%2)...</source>
         <translation>Szukanie napisów w języku zapasowym [%1] (%2)...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="373"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="383"/>
         <source>Downloading subtitles file...</source>
         <translation>Pobieranie napisów dla pliku...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="389"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="399"/>
         <source>Unpacking subtitles file...</source>
         <translation>Rozpakowywanie napisów...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="399"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="409"/>
         <source>Post-processing subtitles...</source>
         <translation>Przetwarzanie napisów...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="404"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="414"/>
         <source>Adjusting subtitles...</source>
         <translation>Dopasowywanie napisów...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="412"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="422"/>
         <source>Could not adjust subtitles!</source>
         <translation>Nie udało się dopasować napisów!</translation>
     </message>
@@ -511,7 +511,7 @@
         <translation>QNapi: zakończono.</translation>
     </message>
     <message>
-        <location filename="../libqnapi/src/qnapi.cpp" line="91"/>
+        <location filename="../libqnapi/src/qnapi.cpp" line="92"/>
         <source>No subtitles found!</source>
         <translation>Nie znaleziono napisów!</translation>
     </message>
@@ -1609,17 +1609,22 @@
         <translation>Problemy z silnikami napisów</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="191"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="178"/>
+        <source>Subtitle engine information</source>
+        <translation>Informacje od silników napisów</translation>
+    </message>
+    <message>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="195"/>
         <source>QNapi</source>
         <translation>QNapi</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="192"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="196"/>
         <source>Do you want to cancel subtitles downloading?</source>
         <translation>Czy chcesz przerwać pobieranie napisów?</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="197"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="201"/>
         <source>Finishing the tasks...</source>
         <translation>Kończenie zadań...</translation>
     </message>
