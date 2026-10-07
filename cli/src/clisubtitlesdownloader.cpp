@@ -158,8 +158,9 @@ void printEngineErrors(const Console& c, QNapi& napi) {
 
 int finishSubtitles(int selIdx, const Console& c, QNapi& napi) {
   c.printLineOrdinary(tr("Downloading subtitles..."));
-  if (!napi.download(selIdx)) {
-    printEngineErrors(c, napi);
+  bool downloaded = napi.download(selIdx);
+  printEngineErrors(c, napi);
+  if (!downloaded) {
     c.printLineError(tr("Unable to download subtitles!"));
     return EC_COULD_NOT_DOWNLOAD;
   }
