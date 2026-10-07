@@ -1,6 +1,7 @@
 /*****************************************************************************
 ** QNapi
 ** Copyright (C) 2008-2017 Piotr Krzemiński <pio.krzeminski@gmail.com>
+** Copyright (C) 2026 Mikołaj Stańczak <6730023+MikoWhy91@users.noreply.github.com>
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -45,7 +46,6 @@ class QNapi {
   // true only if an engine found subtitles that may be downloaded without
   // asking (not SUBTITLE_BAD); see hasAnySubtitles() for the rest
   bool lookForSubtitles(QString lang, QString engine = "");
-  bool lookForSubtitles(QStringList languages, QString engine = "");
   QList<SubtitleInfo> listSubtitles();
 
   bool needToShowList();
