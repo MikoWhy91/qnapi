@@ -7,11 +7,12 @@
 !define APPNAMEANDVERSION "${APPNAME} ${APPVER}"
 
 !include "MUI2.nsh"
-!include "nsProcess.nsh"
+
+Unicode true
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
-InstallDir "$PROGRAMFILES\${APPNAME}"
+InstallDir "$PROGRAMFILES64\${APPNAME}"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
 OutFile "${APPNAME}-${APPVER}-setup.exe"
 
@@ -38,8 +39,8 @@ SetCompressor LZMA
 
 Section "QNapi" Section1
 
-    ${nsProcess::KillProcess} "qnapi.exe" $R0
-    ${nsProcess::Unload}
+    nsExec::Exec 'taskkill /F /IM qnapi.exe'
+    Pop $R0
 
     ; Set Section properties
     SetOverwrite on
@@ -116,8 +117,8 @@ SectionEnd
 ;Uninstall section
 Section Uninstall
 
-    ${nsProcess::KillProcess} "qnapi.exe" $R0
-    ${nsProcess::Unload}
+    nsExec::Exec 'taskkill /F /IM qnapi.exe'
+    Pop $R0
 
     DeleteRegKey HKCR SystemFileAssociations\.asf\shell\qnapi
     DeleteRegKey HKCR SystemFileAssociations\.avi\shell\qnapi

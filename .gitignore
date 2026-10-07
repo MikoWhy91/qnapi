@@ -10,3 +10,4 @@ win32/*.exe
 *.AppImage
 .DS_Store
 doc/doxygen/*
+/deps/prebuilt/

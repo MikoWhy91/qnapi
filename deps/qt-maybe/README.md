@@ -55,8 +55,9 @@ Simple example:
 
 ## Examples
 
-See `TestMaybe.cpp` for unit tests which show example usage of the `Maybe` and
-`Either` templates.
+The upstream `TestMaybe.cpp` unit tests are not vendored in QNapi (they are a
+qmake project and assume the 12-byte Qt 4 `QVariant`); QNapi's own test suite
+covers the parts of `Maybe` and `Either` it uses.
 
 ## Performance
 

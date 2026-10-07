@@ -45,8 +45,15 @@ endif()
 
 if(WIN32)
   install(FILES doc/ChangeLog doc/LICENSE doc/LICENSE-pl DESTINATION .)
-  install(PROGRAMS win32/content/7za.exe DESTINATION .)
-  install(FILES deps/libmediainfo/bin/MediaInfo.dll DESTINATION .)
+  if(QNAPI_P7ZIP_BINARY)
+    install(PROGRAMS "${QNAPI_P7ZIP_BINARY}" DESTINATION .)
+  endif()
+  if(QNAPI_MEDIAINFO_BINARY)
+    install(FILES "${QNAPI_MEDIAINFO_BINARY}" DESTINATION .)
+  endif()
+  if(QNAPI_THIRDPARTY_LICENSES)
+    install(FILES ${QNAPI_THIRDPARTY_LICENSES} DESTINATION .)
+  endif()
 
   # OpenSubtitles is HTTPS-only and Qt loads OpenSSL at runtime without
   # shipping it. Qt >= 6.5 needs OpenSSL 3, Qt 5.15 - 6.4 OpenSSL 1.1.

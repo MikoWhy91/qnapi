@@ -75,6 +75,7 @@ else()
 endif()
 
 include(cmake/QNapiTranslations.cmake)
+include(cmake/QNapiThirdParty.cmake)
 
 add_subdirectory(libqnapi)
 if(QNAPI_BUILD_CLI)

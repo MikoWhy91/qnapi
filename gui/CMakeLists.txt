@@ -65,19 +65,22 @@ else()
 endif()
 
 if(APPLE)
-  set(QNAPI_MACOS_BUNDLE_FILES
+  set(QNAPI_MACOS_RESOURCES
       "${PROJECT_SOURCE_DIR}/macx/qnapi.icns"
-      "${PROJECT_SOURCE_DIR}/macx/content/7za")
-  set_source_files_properties(${QNAPI_MACOS_BUNDLE_FILES} PROPERTIES
+      ${QNAPI_P7ZIP_BINARY}
+      ${QNAPI_THIRDPARTY_LICENSES})
+  set_source_files_properties(${QNAPI_MACOS_RESOURCES} PROPERTIES
                               MACOSX_PACKAGE_LOCATION Resources)
-  set(QNAPI_MACOS_MEDIAINFO "${PROJECT_SOURCE_DIR}/deps/libmediainfo/lib/libmediainfo.0.dylib")
-  set_source_files_properties("${QNAPI_MACOS_MEDIAINFO}" PROPERTIES
-                              MACOSX_PACKAGE_LOCATION MacOS)
   list(APPEND QNAPI_GUI_SOURCES
       src/utils/infoplistdockicon.cpp
       src/utils/infoplistdockicon.h
-      ${QNAPI_MACOS_BUNDLE_FILES}
-      "${QNAPI_MACOS_MEDIAINFO}")
+      ${QNAPI_MACOS_RESOURCES})
+  # MediaInfoDLL.h loads it from @executable_path
+  if(QNAPI_MEDIAINFO_BINARY)
+    set_source_files_properties("${QNAPI_MEDIAINFO_BINARY}" PROPERTIES
+                                MACOSX_PACKAGE_LOCATION MacOS)
+    list(APPEND QNAPI_GUI_SOURCES "${QNAPI_MEDIAINFO_BINARY}")
+  endif()
 endif()
 
 add_executable(qnapi WIN32 MACOSX_BUNDLE ${QNAPI_GUI_SOURCES})
