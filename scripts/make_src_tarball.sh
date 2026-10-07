@@ -13,8 +13,6 @@ rm -fr $DST_DIR/macx/QNapi*dmg
 rm -fr $DST_DIR/libqnapi/tmp
 rm -fr $DST_DIR/gui/tmp
 rm -fr $DST_DIR/tmp
-rm -fr $DST_DIR/appveyor.yml
-rm -fr $DST_DIR/.travis.yml
 rm -fr $DST_DIR/qnapi
 rm -fr $DST_DIR/QNapi*.AppImage
 tar -zcvf qnapi-$VERSION.tar.gz $DST_DIR
