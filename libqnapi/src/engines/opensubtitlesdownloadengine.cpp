@@ -424,7 +424,11 @@ QString OpenSubtitlesDownloadEngine::errorFor(const Response& r) const {
     return QObject::tr("OpenSubtitles rate limit exceeded, try again shortly.");
   }
   if (r.status == 403) {
-    return QObject::tr("OpenSubtitles refused the request: %1").arg(message);
+    // an invalid API key is reported as 403 "You cannot consume this service"
+    return QObject::tr(
+               "OpenSubtitles refused the request (%1). Check the API key in "
+               "the OpenSubtitles engine settings.")
+        .arg(message);
   }
   return QObject::tr("OpenSubtitles returned HTTP %1: %2")
       .arg(r.status)
