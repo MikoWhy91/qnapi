@@ -1,6 +1,7 @@
 /*****************************************************************************
 ** QNapi
 ** Copyright (C) 2008-2017 Piotr Krzemiński <pio.krzeminski@gmail.com>
+** Copyright (C) 2026 Mikołaj Stańczak <poczta@mikolajstanczak.pl>
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
