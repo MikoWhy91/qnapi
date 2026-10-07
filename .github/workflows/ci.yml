@@ -25,7 +25,7 @@ jobs:
           # distributions than one built on 24.04 would
           - os: ubuntu-22.04
             qt: 6
-            packages: qt6-base-dev qt6-tools-dev qt6-l10n-tools libqt6core5compat6-dev qt6-qpa-plugins libgl-dev p7zip-full
+            packages: qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libqt6core5compat6-dev qt6-qpa-plugins libgl-dev p7zip-full
             package: true
           - os: ubuntu-24.04
             qt: 5

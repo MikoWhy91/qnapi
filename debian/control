@@ -2,7 +2,7 @@ Source: qnapi
 Section: net
 Priority: optional
 Maintainer: Mikołaj Stańczak <6730023+MikoWhy91@users.noreply.github.com>
-Build-Depends: debhelper (>=9), cmake (>= 3.16), qt6-base-dev, qt6-tools-dev, qt6-l10n-tools, libqt6core5compat6-dev, pkg-config, libmediainfo-dev, zlib1g-dev
+Build-Depends: debhelper (>=9), cmake (>= 3.16), qt6-base-dev, qt6-tools-dev, qt6-tools-dev-tools, qt6-l10n-tools, libqt6core5compat6-dev, pkg-config, libmediainfo-dev, zlib1g-dev
 Standards-Version: 3.9.7
 Homepage: https://github.com/MikoWhy91/qnapi
 Vcs-Git: https://github.com/MikoWhy91/qnapi.git

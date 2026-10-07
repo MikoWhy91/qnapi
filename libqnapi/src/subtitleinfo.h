@@ -15,7 +15,9 @@
 #ifndef SUBTITLEINFO_H
 #define SUBTITLEINFO_H
 
+#include <QList>
 #include <QMetaType>
+#include <QString>
 #include <QUuid>
 
 // Orientacyjne okreslenie czy napisy na pewno pasuja lub nie do naszego filmu

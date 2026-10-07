@@ -20,7 +20,7 @@
 #define UNICODE
 #endif
 
-#ifdef UNICODE
+#if defined(UNICODE) && !defined(_UNICODE)
 #define _UNICODE
 #endif
 
