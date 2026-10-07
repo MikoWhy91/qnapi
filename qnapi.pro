@@ -88,6 +88,24 @@ win32 {
     QMAKE_EXTRA_TARGETS += deploywin platform
 
     INSTALLS = p7zip doc icudlls libmediainfodlls platform
+
+    # OpenSubtitles is HTTPS-only and Qt loads OpenSSL at runtime without
+    # shipping it. Qt >= 5.12.4 needs OpenSSL 1.1, older versions OpenSSL 1.0.
+    isEmpty(OPENSSL_BIN_DIR): OPENSSL_BIN_DIR = $$(OPENSSL_BIN_DIR)
+    greaterThan(QT_MINOR_VERSION, 12)|if(equals(QT_MINOR_VERSION, 12):greaterThan(QT_PATCH_VERSION, 3)) {
+        OPENSSL_DLLS = libssl-1_1.dll libcrypto-1_1.dll
+    } else {
+        OPENSSL_DLLS = libeay32.dll ssleay32.dll
+    }
+    for(dll, OPENSSL_DLLS) {
+        exists($$OPENSSL_BIN_DIR/$$dll): openssldlls.files += $$OPENSSL_BIN_DIR/$$dll
+    }
+    isEmpty(openssldlls.files) {
+        warning("OpenSSL DLLs ($$OPENSSL_DLLS) not found; set OPENSSL_BIN_DIR. Without them the OpenSubtitles engine cannot connect (HTTPS).")
+    } else {
+        openssldlls.path = $${INSTALL_PREFIX}
+        INSTALLS += openssldlls
+    }
 }
 
 doxygen.commands = rm -fr doc/doxygen/* && doxygen Doxyfile && echo "Doxygen documentation generated in doc/doxygen/index.html"

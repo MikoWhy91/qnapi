@@ -170,6 +170,14 @@ void frmProgress::downloadFinished() {
       QMessageBox::critical(0, tr("Critical error!"),
                             getThread.criticalMessage);
     } else if (queue.size() > 0 && !getThread.subStatusList.isEmpty()) {
+      if (!getThread.engineErrors.isEmpty()) {
+        QMessageBox::warning(0, tr("Subtitle engine problems"),
+                             getThread.engineErrors.join("\n\n"));
+      }
+      if (!getThread.engineNotices.isEmpty()) {
+        QMessageBox::information(0, tr("Subtitle engine information"),
+                                 getThread.engineNotices.join("\n\n"));
+      }
       summary.setSummaryList(getThread.subStatusList);
       summary.exec();
     }
@@ -241,9 +249,20 @@ void GetThread::subtitlesSelected(int idx) {
     }               \
   }
 
+void GetThread::collectEngineErrors(QNapi &napi) {
+  foreach (QString engineError, napi.takeEngineErrors()) {
+    if (!engineErrors.contains(engineError)) engineErrors << engineError;
+  }
+  foreach (QString engineNotice, napi.takeEngineNotices()) {
+    if (!engineNotices.contains(engineNotice)) engineNotices << engineNotice;
+  }
+}
+
 void GetThread::run() {
   abort = false;
   criticalMessage.clear();
+  engineErrors.clear();
+  engineNotices.clear();
   if (queue.size() <= 0) return;
 
   napiSuccess = napiFail = 0;
@@ -330,7 +349,11 @@ void GetThread::run() {
       }
     }
 
-    if (!found) {
+    collectEngineErrors(napi);
+
+    // without acceptable results, results marked as possibly not matching
+    // are still offered (or skipped) by needToShowList()/bestIdx() below
+    if (!found && !napi.hasAnySubtitles()) {
       ++napiFail;
       subStatusList << SubtitleInfo::fromFailed(queue[i]);
       continue;
@@ -359,7 +382,10 @@ void GetThread::run() {
     emit progressChange(i, queue.size(), 0.5);
     emit actionChange(tr("Downloading subtitles file..."));
 
-    if (!napi.download(selIdx)) {
+    bool downloaded = napi.download(selIdx);
+    collectEngineErrors(napi);
+
+    if (!downloaded) {
       ABORT_POINT
 
       ++napiFail;

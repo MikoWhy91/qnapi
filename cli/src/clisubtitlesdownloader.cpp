@@ -129,6 +129,12 @@ Maybe<int> selectSubtitles(const Console& c, const QNapiConfig& config,
   }
 
   if (!showList) {
+    if (napi.bestIdx() < 0) {
+      c.printLineWarning(
+          tr("Found subtitles do not match the video file and need to be "
+             "chosen from the list (option -s)."));
+      return just(-1);
+    }
     return just(napi.bestIdx());
   } else {
     QList<SubtitleInfo> subtitlesList = napi.listSubtitles();
@@ -144,9 +150,20 @@ Maybe<int> selectSubtitles(const Console& c, const QNapiConfig& config,
   }
 }
 
+void printEngineErrors(const Console& c, QNapi& napi) {
+  foreach (QString engineError, napi.takeEngineErrors()) {
+    c.printLineError(engineError);
+  }
+  foreach (QString engineNotice, napi.takeEngineNotices()) {
+    c.printLineOrdinary(engineNotice);
+  }
+}
+
 int finishSubtitles(int selIdx, const Console& c, QNapi& napi) {
   c.printLineOrdinary(tr("Downloading subtitles..."));
-  if (!napi.download(selIdx)) {
+  bool downloaded = napi.download(selIdx);
+  printEngineErrors(c, napi);
+  if (!downloaded) {
     c.printLineError(tr("Unable to download subtitles!"));
     return EC_COULD_NOT_DOWNLOAD;
   }
@@ -191,13 +208,21 @@ int downloadForMovie(const Console& c, const QString& movieFilePath, int i,
   napi.clearSubtitlesList();
 
   bool found = findSubtitles(c, config, napi);
+  printEngineErrors(c, napi);
 
-  if (!found) {
+  // without acceptable results, results marked as possibly not matching
+  // are still offered (or skipped) by selectSubtitles()
+  if (!found && !napi.hasAnySubtitles()) {
     c.printLineWarning(tr("Subtitles not found!"));
     return EC_SUBTITLES_NOT_FOUND;
   }
 
   Maybe<int> selIdx = selectSubtitles(c, config, napi);
+
+  if (selIdx && selIdx.value() < 0) {
+    napi.cleanup();
+    return EC_SUBTITLES_NOT_FOUND;
+  }
 
   if (selIdx) {
     return finishSubtitles(selIdx.value(), c, napi);
@@ -218,10 +243,12 @@ int downloadSubtitlesFor(const Console& c, const QStringList& movieFilePaths,
   QNapi napi(config);
 
   int total = movieFilePaths.size();
+  int firstFailure = EC_OK;
   for (int i = 1; i <= total; ++i) {
     QString movieFilePath = movieFilePaths[i - 1];
 
     int result = downloadForMovie(c, movieFilePath, i, total, config, napi);
+    if (firstFailure == EC_OK) firstFailure = result;
     if (result == EC_P7ZIP_UNAVAILABLE || result == EC_CANNOT_WRITE_TMP_DIR) {
       if (i < total) {
         c.printLineOrdinary(
@@ -233,6 +260,6 @@ int downloadSubtitlesFor(const Console& c, const QStringList& movieFilePaths,
     }
   }
 
-  return EC_OK;
+  return firstFailure;
 }
 };  // namespace CliSubtitlesDownloader

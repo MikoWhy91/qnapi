@@ -15,6 +15,7 @@
 #include "qnapiapp.h"
 
 #include <iostream>
+#include "engines/opensubtitlesdownloadengine.h"
 #include "libqnapi.h"
 
 QNapiApp::QNapiApp(int &argc, char **argv, const QString &appName)
@@ -277,7 +278,13 @@ void QNapiApp::showCreateAccount(const QString &engineName) const {
 }
 
 void QNapiApp::showOSUploadDialog() const {
-  QDesktopServices::openUrl(QUrl("http://www.opensubtitles.org/upload"));
+  Maybe<QUrl> maybeUploadUrl =
+      enginesRegistry->engineMetadata(OpenSubtitlesDownloadEngine::metadata.name())
+          .uploadUrl();
+
+  if (maybeUploadUrl) {
+    QDesktopServices::openUrl(maybeUploadUrl.value());
+  }
 }
 
 void QNapiApp::showSettings() {

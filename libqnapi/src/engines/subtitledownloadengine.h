@@ -45,6 +45,7 @@ class SubtitleDownloadEngine {
   virtual bool download(QUuid id) = 0;
   virtual bool unpack(QUuid id) = 0;
   virtual void cleanup() = 0;
+  virtual QString lastError() const { return QString(); }
 
  protected:
   QString tmpPath;

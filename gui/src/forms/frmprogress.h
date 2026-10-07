@@ -54,11 +54,18 @@ class GetThread : public QNapiThread {
 
   void run();
 
+ private:
+  void collectEngineErrors(QNapi &napi);
+
+ public:
+
   QStringList queue;
   Maybe<QString> specificEngine;
   QList<SubtitleInfo> subStatusList;
   int napiSuccess, napiFail;
   QString criticalMessage;
+  QStringList engineErrors;
+  QStringList engineNotices;
   QMutex waitForDlg;
   int selIdx;
   QNapiConfig config;

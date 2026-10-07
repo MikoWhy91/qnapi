@@ -34,6 +34,7 @@ class frmOpenSubtitlesConfig : public QDialog {
 
   void accept();
   void pbRegisterClicked();
+  void pbGetApiKeyClicked();
 
  private:
   Ui::frmOpenSubtitlesConfig ui;

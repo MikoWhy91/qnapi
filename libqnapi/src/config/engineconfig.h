@@ -21,21 +21,27 @@ class EngineConfig {
  private:
   QString nick_;
   QString password_;
+  QString apiKey_;
 
  public:
-  EngineConfig(const QString& nick = "", const QString& password = "")
-      : nick_(nick), password_(password) {}
+  EngineConfig(const QString& nick = "", const QString& password = "",
+               const QString& apiKey = "")
+      : nick_(nick), password_(password), apiKey_(apiKey) {}
 
   static EngineConfig empty;
 
   QString nick() const { return nick_; }
   QString password() const { return password_; }
+  QString apiKey() const { return apiKey_; }
 
   const EngineConfig setNick(const QString& nick) const {
-    return EngineConfig(nick, password_);
+    return EngineConfig(nick, password_, apiKey_);
   }
   const EngineConfig setPassword(const QString& password) const {
-    return EngineConfig(nick_, password);
+    return EngineConfig(nick_, password, apiKey_);
+  }
+  const EngineConfig setApiKey(const QString& apiKey) const {
+    return EngineConfig(nick_, password_, apiKey);
   }
 
   QString toString() const;

@@ -122,62 +122,67 @@
         <translation> (cattiva qualità)</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="137"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="134"/>
+        <source>Found subtitles do not match the video file and need to be chosen from the list (option -s).</source>
+        <translation>I sottotitoli trovati non corrispondono al file video e devono essere scelti dall&apos;elenco (opzione -s).</translation>
+    </message>
+    <message>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="143"/>
         <source>Select subtitles to download: </source>
         <translation>Selezionare sottotitoli da scaricare: </translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="148"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="163"/>
         <source>Downloading subtitles...</source>
         <translation>Scaricamento sottotitoli...</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="150"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="167"/>
         <source>Unable to download subtitles!</source>
         <translation>Impossibile scaricare sottotitoli!</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="154"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="171"/>
         <source>Unpacking subtitles...</source>
         <translation>Scompattamento sottotitoli...</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="156"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="173"/>
         <source>Failed to unpack subtitles!</source>
         <translation>Impossibile scompattare i sottotitoli!</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="161"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="178"/>
         <source>Post-processing subtitles file...</source>
         <translation>Post-elaborazione file sottotitoli...</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="165"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="182"/>
         <source>Adjusting subtitles...</source>
         <translation>Adattamento sottotitoli...</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="167"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="184"/>
         <source>Could not adjust subtitles!</source>
         <translation>Impossibile adattare i sottotitoli!</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="178"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="195"/>
         <source>Downloading subtitles for &apos;%1&apos; [%2/%3]</source>
         <translation>Scaricamento sottotitoli per &apos;%1&apos; [%2/%3]</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="186"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="203"/>
         <source>No permission to write to the directory &apos;%1&apos;!</source>
         <translation>Mancano i permessi per scrivere nella cartella &apos;%1&apos;!</translation>
     </message>
     <message>
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="196"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="216"/>
         <source>Subtitles not found!</source>
         <translation>Sottotitoli non trovati!</translation>
     </message>
     <message numerus="yes">
-        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="228"/>
+        <location filename="../cli/src/clisubtitlesdownloader.cpp" line="255"/>
         <source>Processing of remaining %n file(s) was ignored due to critical error.</source>
         <translation>
             <numerusform>L&apos;elaborazione di un file rimanente è stato ignorato a causa di un errore critico.</numerusform>
@@ -255,54 +260,54 @@
 <context>
     <name>GetThread</name>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="268"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="287"/>
         <source>Checking permissions of the video directory...</source>
         <translation>Controllo permessi della cartella video...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="271"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="290"/>
         <source>No permission to write to the directory &apos;%1&apos;!</source>
         <translation>Mancano i permessi per scrivere nella cartella &apos;%1&apos;!</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="279"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="298"/>
         <source>Calculating checksum of the file...</source>
         <translation>Calcolo checksum del file...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="292"/>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="308"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="311"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="327"/>
         <source>Searching for subtitles [%1] (%2)...</source>
         <translation>Ricerca sottotitoli [%1] (%2)...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="298"/>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="322"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="317"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="341"/>
         <source>Searching for subtitles in alternative language [%1] (%2)...</source>
         <translation>Ricerca sottotitoli in lingua alternativa [%1] (%2)...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="360"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="383"/>
         <source>Downloading subtitles file...</source>
         <translation>Scaricamento file sottotitoli...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="373"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="399"/>
         <source>Unpacking subtitles file...</source>
         <translation>Scompattamento file sottotitoli...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="383"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="409"/>
         <source>Post-processing subtitles...</source>
         <translation>Post-elaborazione sottotitoli...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="388"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="414"/>
         <source>Adjusting subtitles...</source>
         <translation>Adattamento sottotitoli...</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="396"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="422"/>
         <source>Could not adjust subtitles!</source>
         <translation>Impossibile adattare i sottotitoli!</translation>
     </message>
@@ -392,77 +397,69 @@
     </message>
 </context>
 <context>
-    <name>MaiaObject</name>
-    <message>
-        <location filename="../deps/libmaia/maiaObject.cpp" line="288"/>
-        <source>parse error: invalid xml-rpc. not conforming to spec.</source>
-        <translation>analizza l&apos;errore: xml-rpc non valido. non conforme alle specifiche.</translation>
-    </message>
-</context>
-<context>
     <name>QNapiApp</name>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="92"/>
-        <location filename="../gui/src/qnapiapp.cpp" line="103"/>
-        <location filename="../gui/src/qnapiapp.cpp" line="111"/>
-        <location filename="../gui/src/qnapiapp.cpp" line="122"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="93"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="104"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="112"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="123"/>
         <source>Download subtitles</source>
         <translation>Scarica sottotitoli</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="96"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="97"/>
         <source>Scan directories</source>
         <translation>Scansiona cartelle</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="100"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="101"/>
         <source>Convert subtitles</source>
         <translation>Converti sottotitoli</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="107"/>
-        <location filename="../gui/src/qnapiapp.cpp" line="118"/>
-        <location filename="../gui/src/qnapiapp.cpp" line="126"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="108"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="119"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="127"/>
         <source>Create an account</source>
         <translation>Crea un account</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="115"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="116"/>
         <source>Upload subtitles</source>
         <translation>Invia sottotitoli</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="130"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="131"/>
         <source>Settings</source>
         <translation>Impostazioni</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="133"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="134"/>
         <source>About</source>
         <translation>Informazioni</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="136"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="137"/>
         <source>Quit</source>
         <translation>Esci</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="140"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="141"/>
         <source>NapiProjekt</source>
         <translation>NapiProjekt</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="145"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="146"/>
         <source>OpenSubtitles</source>
         <translation>OpenSubtitles</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="151"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="152"/>
         <source>Napisy24</source>
         <translation>Napisy24</translation>
     </message>
     <message>
-        <location filename="../gui/src/qnapiapp.cpp" line="195"/>
+        <location filename="../gui/src/qnapiapp.cpp" line="196"/>
         <source>Select one or more video files to download subtitles for</source>
         <translation>Scegli uno o più video file per cui scaricare sottotitoli</translation>
     </message>
@@ -491,11 +488,6 @@
         <location filename="../libqnapi/src/engines/napisy24downloadengine.cpp" line="26"/>
         <source>&lt;b&gt;www.napisy24.pl&lt;/b&gt; subtitle download engine</source>
         <translation>Motore scaricamento sottotitoli &lt;b&gt;www.napisy24.pl&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="27"/>
-        <source>&lt;b&gt;www.opensubtitles.org&lt;/b&gt; subtitles download engine</source>
-        <translation>Motore scaricamento sottotitoli &lt;b&gt;www.opensubtitles.org&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../libqnapi/src/subconvert/subtitleconverter.cpp" line="157"/>
@@ -708,9 +700,97 @@
         <translation>QNapi: operazione conclusa.</translation>
     </message>
     <message>
-        <location filename="../libqnapi/src/qnapi.cpp" line="89"/>
+        <location filename="../libqnapi/src/qnapi.cpp" line="92"/>
         <source>No subtitles found!</source>
         <translation>Nessun sottotitolo trovato!</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="46"/>
+        <source>&lt;b&gt;www.opensubtitles.com&lt;/b&gt; subtitles download engine</source>
+        <translation>Motore scaricamento sottotitoli &lt;b&gt;www.opensubtitles.com&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="110"/>
+        <source>OpenSubtitles requires an API key. Register an application at opensubtitles.com (Profile &gt; API consumers) and enter the key in the OpenSubtitles engine settings.</source>
+        <translation>OpenSubtitles richiede una chiave API. Registra un&apos;applicazione su opensubtitles.com (Profilo &gt; API consumers) e inserisci la chiave nelle impostazioni del motore OpenSubtitles.</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="120"/>
+        <source>OpenSubtitles needs HTTPS, but the OpenSSL libraries were not found (Qt was built for OpenSSL %1). Install them next to the QNapi executable.</source>
+        <translation>OpenSubtitles richiede HTTPS, ma le librerie OpenSSL non sono state trovate (Qt è stato compilato per OpenSSL %1). Installale accanto all&apos;eseguibile di QNapi.</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="214"/>
+        <source>OpenSubtitles did not return a download link.</source>
+        <translation>OpenSubtitles non ha restituito un link di download.</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="228"/>
+        <source>OpenSubtitles: subtitle file download failed (HTTP %1).</source>
+        <translation>OpenSubtitles: download del file dei sottotitoli non riuscito (HTTP %1).</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="236"/>
+        <source>OpenSubtitles: %n download(s) left in the daily quota. %1</source>
+        <translation>
+            <numerusform>OpenSubtitles: resta %n download nella quota giornaliera. %1</numerusform>
+            <numerusform>OpenSubtitles: restano %n download nella quota giornaliera. %1</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="301"/>
+        <source>OpenSubtitles login failed: check your username and password. Continuing without logging in.</source>
+        <translation>Accesso a OpenSubtitles non riuscito: controlla nome utente e password. Si continua senza accesso.</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="405"/>
+        <source>OpenSubtitles did not respond in time. Check your internet connection and try again.</source>
+        <translation>OpenSubtitles non ha risposto in tempo. Controlla la connessione a Internet e riprova.</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="410"/>
+        <source>OpenSubtitles: network error: %1</source>
+        <translation>OpenSubtitles: errore di rete: %1</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="422"/>
+        <source>no details</source>
+        <translation>nessun dettaglio</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="429"/>
+        <source>OpenSubtitles download quota exhausted: %1</source>
+        <translation>Quota di download di OpenSubtitles esaurita: %1</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="431"/>
+        <source>Log in with an opensubtitles.com account in the engine settings to raise the limit.</source>
+        <translation>Accedi con un account opensubtitles.com nelle impostazioni del motore per aumentare il limite.</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="439"/>
+        <source>OpenSubtitles rejected the API key. Check the key in the OpenSubtitles engine settings.</source>
+        <translation>OpenSubtitles ha rifiutato la chiave API. Controlla la chiave nelle impostazioni del motore OpenSubtitles.</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="444"/>
+        <source>OpenSubtitles refused the request: %1</source>
+        <translation>OpenSubtitles ha rifiutato la richiesta: %1</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="447"/>
+        <source>OpenSubtitles rejected the login: check your username and password in the OpenSubtitles engine settings.</source>
+        <translation>OpenSubtitles ha rifiutato l&apos;accesso: controlla nome utente e password nelle impostazioni del motore OpenSubtitles.</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="452"/>
+        <source>OpenSubtitles rate limit exceeded, try again shortly.</source>
+        <translation>Limite di richieste a OpenSubtitles superato, riprova tra poco.</translation>
+    </message>
+    <message>
+        <location filename="../libqnapi/src/engines/opensubtitlesdownloadengine.cpp" line="454"/>
+        <source>OpenSubtitles returned HTTP %1: %2</source>
+        <translation>OpenSubtitles ha restituito HTTP %1: %2</translation>
     </message>
 </context>
 <context>
@@ -785,8 +865,8 @@
     </message>
     <message>
         <location filename="../gui/ui/frmabout.ui" line="147"/>
-        <source>The program uses www.opensubtitles.org subtitle database</source>
-        <translation>Questo programma usa il database sottotitoli www.opensubtitles.org</translation>
+        <source>The program uses www.opensubtitles.com subtitle database</source>
+        <translation>Questo programma usa il database sottotitoli www.opensubtitles.com</translation>
     </message>
     <message>
         <location filename="../gui/ui/frmabout.ui" line="173"/>
@@ -951,44 +1031,44 @@
         <translation>Converti</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmconvert.cpp" line="79"/>
+        <location filename="../gui/src/forms/frmconvert.cpp" line="80"/>
         <source>Choose a subtitles file</source>
         <translation>Scegliere un file sottotitoli</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmconvert.cpp" line="96"/>
+        <location filename="../gui/src/forms/frmconvert.cpp" line="97"/>
         <source>incorrect</source>
         <translation>errato</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmconvert.cpp" line="141"/>
+        <location filename="../gui/src/forms/frmconvert.cpp" line="142"/>
         <source>Default (%1)</source>
         <translation>Predefinita (%1)</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmconvert.cpp" line="170"/>
-        <location filename="../gui/src/forms/frmconvert.cpp" line="192"/>
+        <location filename="../gui/src/forms/frmconvert.cpp" line="171"/>
+        <location filename="../gui/src/forms/frmconvert.cpp" line="193"/>
         <source>Select a video file</source>
         <translation>Selezionare un file video</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmconvert.cpp" line="244"/>
+        <location filename="../gui/src/forms/frmconvert.cpp" line="245"/>
         <source>Subtitles converted</source>
         <translation>Sottotitoli convertiti</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmconvert.cpp" line="245"/>
+        <location filename="../gui/src/forms/frmconvert.cpp" line="246"/>
         <source>Changed subtitles format from &apos;%1&apos; to &apos;%2&apos;</source>
         <translatorcomment>convertito?</translatorcomment>
         <translation>Formato sottotitoli cambiato da &apos;%1&apos; a &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmconvert.cpp" line="248"/>
+        <location filename="../gui/src/forms/frmconvert.cpp" line="249"/>
         <source>Could not change subtitle format!</source>
         <translation>Impossibile cambiare formato sottotitoli!</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmconvert.cpp" line="249"/>
+        <location filename="../gui/src/forms/frmconvert.cpp" line="250"/>
         <source>An error occured while converting subtitles!</source>
         <translation>Si è verificato un errore durante la conversione dei sottotitoli!</translation>
     </message>
@@ -1116,26 +1196,52 @@
     </message>
     <message>
         <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="32"/>
+        <source>API key:</source>
+        <translation>Chiave API:</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="42"/>
+        <source>required</source>
+        <translation>obbligatoria</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="49"/>
         <source>Login:</source>
         <translation>Utente:</translation>
     </message>
     <message>
-        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="46"/>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="59"/>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="79"/>
+        <source>optional</source>
+        <translation>facoltativo</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="66"/>
         <source>Password:</source>
         <translation>Password:</translation>
     </message>
     <message>
-        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="76"/>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="86"/>
+        <source>Get a free API key in your opensubtitles.com profile (API consumers). Login and password are optional and raise the daily download limit.</source>
+        <translation>Ottieni una chiave API gratuita nel tuo profilo su opensubtitles.com (API consumers). Nome utente e password sono facoltativi e aumentano il limite giornaliero di download.</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="109"/>
         <source>Create an account</source>
         <translation>Crea un account</translation>
     </message>
     <message>
-        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="96"/>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="116"/>
+        <source>Get an API key</source>
+        <translation>Ottieni una chiave API</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="136"/>
         <source>Cancel</source>
         <translation>Annulla</translation>
     </message>
     <message>
-        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="103"/>
+        <location filename="../gui/ui/opensubtitles/frmopensubtitlesconfig.ui" line="143"/>
         <source>Save</source>
         <translation>Salva</translation>
     </message>
@@ -1497,17 +1603,27 @@
         <translation>Errore critico!</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="187"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="174"/>
+        <source>Subtitle engine problems</source>
+        <translation>Problemi dei motori di sottotitoli</translation>
+    </message>
+    <message>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="178"/>
+        <source>Subtitle engine information</source>
+        <translation>Informazioni dai motori di sottotitoli</translation>
+    </message>
+    <message>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="195"/>
         <source>QNapi</source>
         <translation>QNapi</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="188"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="196"/>
         <source>Do you want to cancel subtitles downloading?</source>
         <translation>Si desidera annullare lo scaricamento dei sottotitoli?</translation>
     </message>
     <message>
-        <location filename="../gui/src/forms/frmprogress.cpp" line="193"/>
+        <location filename="../gui/src/forms/frmprogress.cpp" line="201"/>
         <source>Finishing the tasks...</source>
         <translation>Conclusione operazioni in corso...</translation>
     </message>

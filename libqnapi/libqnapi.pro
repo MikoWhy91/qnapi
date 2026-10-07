@@ -13,7 +13,6 @@ DESTDIR = $$PWD
 
 INCLUDEPATH += $$PWD/src
 
-include(../deps/libmaia/maia.pri)
 include(../deps/qt-maybe/qt-maybe.pri)
 
 UI_DIR = tmp
@@ -51,7 +50,6 @@ SOURCES += src/config/configreader.cpp \
     src/utils/encodingutils.cpp \
     src/utils/p7zipdecoder.cpp \
     src/utils/synchttp.cpp \
-    src/utils/syncxmlrpc.cpp \
     src/qnapi.cpp \
     src/parser/cliargparser.cpp \
     src/parser/cliargparsersexecutor.cpp \
@@ -105,7 +103,6 @@ HEADERS += src/config/configreader.h \
     src/utils/encodingutils.h \
     src/utils/p7zipdecoder.h \
     src/utils/synchttp.h \
-    src/utils/syncxmlrpc.h \
     src/version.h \
     src/qnapi.h \
     src/tr.h \

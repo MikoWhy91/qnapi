@@ -75,13 +75,16 @@ bool QNapi::lookForSubtitles(QString lang, QString engine) {
   if (engine.isEmpty()) {
     foreach (QSharedPointer<SubtitleDownloadEngine> e, enginesList) {
       e->setMoviePath(movie);
-      result = e->lookForSubtitles(lang) || result;
+      result = (e->lookForSubtitles(lang) && hasAcceptableSubtitles(e)) ||
+               result;
+      collectEngineError(e, engineErrors);
     }
   } else {
     QSharedPointer<SubtitleDownloadEngine> e = engineByName(engine);
     if (e) {
       e->setMoviePath(movie);
-      result = e->lookForSubtitles(lang);
+      result = e->lookForSubtitles(lang) && hasAcceptableSubtitles(e);
+      collectEngineError(e, engineErrors);
     }
   }
 
@@ -118,25 +121,31 @@ QList<SubtitleInfo> QNapi::listSubtitles() {
 }
 
 bool QNapi::needToShowList() {
-  theBestIdx = 0;
+  QList<SubtitleInfo> subtitles = listSubtitles();
 
-  int i = 0;
+  // SUBTITLE_BAD results are never picked automatically, only from the list
+  theBestIdx = -1;
+  int firstAcceptableIdx = -1;
   bool foundBestIdx = false;
-  foreach (SubtitleInfo s, listSubtitles()) {
-    if (s.resolution == SUBTITLE_GOOD) {
+  for (int i = 0; i < subtitles.size(); ++i) {
+    if (subtitles[i].resolution == SUBTITLE_GOOD) {
       theBestIdx = i;
       foundBestIdx = true;
       break;
     }
-    ++i;
+    if (firstAcceptableIdx == -1 && subtitles[i].resolution != SUBTITLE_BAD)
+      firstAcceptableIdx = i;
   }
+  if (!foundBestIdx) theBestIdx = firstAcceptableIdx;
 
   if (config.generalConfig().downloadPolicy() == DP_ALWAYS_SHOW_LIST)
     return true;
   if (config.generalConfig().downloadPolicy() == DP_NEVER_SHOW_LIST)
     return false;
 
-  if (listSubtitles().size() <= 1) return false;
+  if (theBestIdx == -1) return !subtitles.isEmpty();
+
+  if (subtitles.size() <= 1) return false;
 
   return !foundBestIdx;
 }
@@ -144,13 +153,17 @@ bool QNapi::needToShowList() {
 int QNapi::bestIdx() { return theBestIdx; }
 
 bool QNapi::download(int i) {
+  if (i < 0 || i >= subtitlesList.size()) return false;
   SubtitleInfo s = subtitlesList[i];
   currentEngine = engineByName(s.engine);
   if (!currentEngine) return false;
-  return currentEngine->download(s.id);
+  bool result = currentEngine->download(s.id);
+  collectEngineError(currentEngine, result ? engineNotices : engineErrors);
+  return result;
 }
 
 bool QNapi::unpack(int i) {
+  if (i < 0 || i >= subtitlesList.size()) return false;
   return currentEngine ? currentEngine->unpack(subtitlesList[i].id) : false;
 }
 
@@ -181,6 +194,40 @@ void QNapi::cleanup() {
 }
 
 QString QNapi::error() { return errorMsg; }
+
+QStringList QNapi::takeEngineErrors() {
+  QStringList errors = engineErrors;
+  engineErrors.clear();
+  return errors;
+}
+
+QStringList QNapi::takeEngineNotices() {
+  QStringList notices = engineNotices;
+  engineNotices.clear();
+  return notices;
+}
+
+bool QNapi::hasAnySubtitles() const {
+  foreach (QSharedPointer<SubtitleDownloadEngine> e, enginesList) {
+    if (!e->subtitlesList.isEmpty()) return true;
+  }
+  return false;
+}
+
+bool QNapi::hasAcceptableSubtitles(
+    const QSharedPointer<SubtitleDownloadEngine>& e) const {
+  foreach (const SubtitleInfo& s, e->subtitlesList) {
+    if (s.resolution != SUBTITLE_BAD) return true;
+  }
+  return false;
+}
+
+void QNapi::collectEngineError(const QSharedPointer<SubtitleDownloadEngine>& e,
+                               QStringList& target) {
+  QString engineError = e->lastError();
+  if (engineError.isEmpty()) return;
+  if (!target.contains(engineError)) target << engineError;
+}
 
 QStringList QNapi::listLoadedEngines() const {
   QStringList list;
