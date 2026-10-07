@@ -144,7 +144,7 @@
        <item row="3" column="1">
         <widget class="QLabel" name="lbUseOS">
          <property name="text">
-          <string>The program uses www.opensubtitles.org subtitle database</string>
+          <string>The program uses www.opensubtitles.com subtitle database</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
