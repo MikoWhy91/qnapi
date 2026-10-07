@@ -182,6 +182,32 @@ class TestQNapi : public QObject {
     QVERIFY(napi.takeEngineErrors().isEmpty());
   }
 
+  void postProcessingAfterDownload() {
+    QNapiConfig cfg = config().setPostProcessingConfig(
+        config()
+            .postProcessingConfig()
+            .setEnabled(true)
+            .setEncodingChangeMethod(ECM_CHANGE)
+            .setEncodingAutoDetectFrom(false)
+            .setEncodingFrom("UTF-8")
+            .setEncodingTo("windows-1250")
+            .setSubFormat("TMP")
+            .setSkipConvertAds(true));
+    auto e = engine("A");
+    e->results["pl"] = {{QString::fromUtf8("żółw"), SUBTITLE_GOOD}};
+    QNapi napi(cfg, Engines{e});
+    napi.setMoviePath(movie("pp.avi"));
+    QVERIFY(napi.lookForSubtitles("pl"));
+    napi.listSubtitles();
+    QVERIFY(napi.download(0));
+    QVERIFY(napi.unpack(0));
+    QVERIFY(napi.ppEnabled());
+    napi.postProcessSubtitles();
+    QVERIFY(napi.matchSubtitles());
+    QCOMPARE(TestUtils::readFile(tmp.filePath("pp.txt")).replace("\r\n", "\n"),
+             QByteArray("00:00:01: \xbf\xf3\xb3w\n"));
+  }
+
   void searchStopsAtFirstEngineWithResults() {
     auto a = engine("A");
     auto b = engine("B");

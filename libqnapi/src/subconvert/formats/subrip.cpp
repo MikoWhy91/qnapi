@@ -56,7 +56,7 @@ SubFile SubRipSubtitleFormat::decode(const QStringList &lines) const {
   QRegularExpression rNumLine = exactRegExp("^\\d+");
 
   QString tokensBuff = "", numsBuff;
-  SrtTimestamps tss;
+  SrtTimestamps tss = {};
 
   foreach (QString line, lines) {
     QRegularExpressionMatch m1, m2;

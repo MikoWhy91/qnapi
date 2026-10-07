@@ -7,7 +7,7 @@ function(qnapi_add_test name)
   # the tests never need a display, a network connection or the user's
   # QNapi settings
   set_tests_properties(${name} PROPERTIES
-      ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QNAPI_TEST_DATA_DIR=${CMAKE_CURRENT_SOURCE_DIR}/data"
+      ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
       TIMEOUT 120)
 endfunction()
 

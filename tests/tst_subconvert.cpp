@@ -153,6 +153,16 @@ class TestSubConvert : public QObject {
     QCOMPARE(sf.entries[2].frameStop, 3604001L);
   }
 
+  void decodeSubRipTextBeforeFirstTimestamp() {
+    SubFile sf = registry->select("SRT")->decode(
+        {"junk", "1", "00:00:05,000 --> 00:00:06,000", "Line"});
+    QCOMPARE(sf.entries.size(), 2);
+    QCOMPARE(sf.entries[0].frameStart, 0L);
+    QCOMPARE(sf.entries[0].frameStop, 0L);
+    QCOMPARE(tokens(sf.entries[0].tokens), QString("1:junk"));
+    QCOMPARE(sf.entries[1].frameStart, 5000L);
+  }
+
   void tokenStream_data() {
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("expected");
