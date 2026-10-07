@@ -56,6 +56,10 @@ class OpenSubtitlesDownloadEngine : public SubtitleDownloadEngine {
   static QString toApiLanguage(const QString& lang);
   static QString fromApiLanguage(const QString& apiLang);
 
+  // defaults to the opensubtitles.com API; changed by tests to a local server
+  void setApiBaseUrl(const QString& url);
+  void setRequestTimeout(int timeoutMs);
+
  private:
   struct Response {
     int status;
@@ -72,6 +76,7 @@ class OpenSubtitlesDownloadEngine : public SubtitleDownloadEngine {
   EngineConfig engineConfig;
   QString userAgent;
   QString apiBaseUrl;
+  int requestTimeoutMs;
   QString token;
   bool loginFailed;
   QString error;

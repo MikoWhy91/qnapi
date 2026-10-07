@@ -43,6 +43,9 @@ class NapiProjektDownloadEngine : public SubtitleDownloadEngine {
 
   static bool checkUser(const QString& nick, const QString& pass);
 
+  // the "f" request parameter derived from the MD5 checksum
+  static QString npFDigest(const QString& input);
+
  private:
   EngineConfig engineConfig;
   QSharedPointer<const P7ZipDecoder> p7zipDecoder;
@@ -50,7 +53,6 @@ class NapiProjektDownloadEngine : public SubtitleDownloadEngine {
   QString checksum(QString filename, bool limit10M);
   Maybe<QString> downloadByLangAndChecksum(QString lang,
                                            QString checksum) const;
-  QString npFDigest(const QString& input) const;
   QString npLangWrapper(QString lang) const;
   QString napiOS() const;
 };

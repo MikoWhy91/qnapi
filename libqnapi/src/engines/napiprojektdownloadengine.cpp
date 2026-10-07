@@ -200,7 +200,7 @@ QString NapiProjektDownloadEngine::checksum(QString filename, bool limit10M) {
   return checkSum;
 }
 
-QString NapiProjektDownloadEngine::npFDigest(const QString &input) const {
+QString NapiProjektDownloadEngine::npFDigest(const QString &input) {
   if (input.size() != 32) return "";
 
   int idx[] = {0xe, 0x3, 0x6, 0x8, 0x2}, mul[] = {2, 2, 5, 4, 3},

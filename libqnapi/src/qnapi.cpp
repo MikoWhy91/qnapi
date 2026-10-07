@@ -33,6 +33,12 @@ QNapi::QNapi(const QNapiConfig& config, const Maybe<QString>& specificEngine)
   }
 }
 
+QNapi::QNapi(const QNapiConfig& config,
+             const QList<QSharedPointer<SubtitleDownloadEngine>>& engines)
+    : enginesList(engines),
+      enginesRegistry(LibQNapi::subtitleDownloadEngineRegistry()),
+      config(config) {}
+
 QNapi::~QNapi() { cleanup(); }
 
 bool QNapi::checkP7ZipPath() {

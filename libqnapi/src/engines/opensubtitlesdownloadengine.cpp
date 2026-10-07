@@ -29,7 +29,7 @@
 
 namespace OpenSubtitlesDownloadEngineConst {
 const QString defaultApiBaseUrl = "https://api.opensubtitles.com/api/v1";
-const int requestTimeoutMs = 30000;
+const int defaultRequestTimeoutMs = 30000;
 const int logoutTimeoutMs = 3000;
 const int lowQuotaWarningThreshold = 2;
 const QStringList subtitleExtensions = {"srt", "sub", "txt", "ssa",
@@ -59,6 +59,7 @@ OpenSubtitlesDownloadEngine::OpenSubtitlesDownloadEngine(
       engineConfig(config),
       userAgent(QString("QNapi v%1").arg(qnapiDisplayableVersion)),
       apiBaseUrl(defaultApiBaseUrl),
+      requestTimeoutMs(defaultRequestTimeoutMs),
       loginFailed(false),
       fileSize(0) {}
 
@@ -116,7 +117,7 @@ bool OpenSubtitlesDownloadEngine::lookForSubtitles(QString lang) {
     return false;
   }
 
-  if (!QSslSocket::supportsSsl()) {
+  if (QUrl(apiBaseUrl).scheme() == "https" && !QSslSocket::supportsSsl()) {
     if (!missingSslReported.exchange(true)) {
       error = QObject::tr(
           "OpenSubtitles needs HTTPS, but the OpenSSL libraries were not "
@@ -312,6 +313,14 @@ void OpenSubtitlesDownloadEngine::logout() {
   // keep shutdown fast when offline
   send(apiRequest("/logout"), "DELETE", QByteArray(), logoutTimeoutMs);
   token.clear();
+}
+
+void OpenSubtitlesDownloadEngine::setApiBaseUrl(const QString& url) {
+  apiBaseUrl = url;
+}
+
+void OpenSubtitlesDownloadEngine::setRequestTimeout(int timeoutMs) {
+  requestTimeoutMs = timeoutMs;
 }
 
 QString OpenSubtitlesDownloadEngine::toApiLanguage(const QString& lang) {

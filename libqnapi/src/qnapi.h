@@ -31,6 +31,9 @@ class QNapi {
  public:
   QNapi(const QNapiConfig& config,
         const Maybe<QString>& specificEngine = nothing());
+  // uses the given engines instead of creating them from the config
+  QNapi(const QNapiConfig& config,
+        const QList<QSharedPointer<SubtitleDownloadEngine>>& engines);
   ~QNapi();
 
   bool checkP7ZipPath();
