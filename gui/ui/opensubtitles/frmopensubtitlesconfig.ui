@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
-    <height>210</height>
+    <width>560</width>
+    <height>250</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>420</width>
-    <height>190</height>
+    <width>540</width>
+    <height>240</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>640</width>
-    <height>300</height>
+    <width>800</width>
+    <height>400</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -83,7 +83,7 @@
    <item row="3" column="0" colspan="5">
     <widget class="QLabel" name="lbHint">
      <property name="text">
-      <string>An API key is free after registering an application in your opensubtitles.com profile (API consumers). Login and password are optional and raise the daily download limit.</string>
+      <string>Get a free API key in your opensubtitles.com profile (API consumers). Login and password are optional and raise the daily download limit.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
