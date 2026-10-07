@@ -4,12 +4,12 @@ Source: https://github.com/MikoWhy91/qnapi
  
 Files: *
 Copyright: 2008-2017 Piotr Krzemiński <pio.krzeminski@gmail.com>
-           2026 Mikołaj Stańczak <poczta@mikolajstanczak.pl>
+           2026 Mikołaj Stańczak <6730023+MikoWhy91@users.noreply.github.com>
 License: GPL-2.0+
 
 Files: debian/*
 Copyright: 2016-2017 Piotr Krzemiński <pio.krzeminski@gmail.com>
-           2026 Mikołaj Stańczak <poczta@mikolajstanczak.pl>
+           2026 Mikołaj Stańczak <6730023+MikoWhy91@users.noreply.github.com>
 License: GPL-2.0+
 
 Files: deps/qt-maybe/*
