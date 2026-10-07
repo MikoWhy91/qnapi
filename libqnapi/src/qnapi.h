@@ -42,6 +42,8 @@ class QNapi {
 
   void clearSubtitlesList();
   void checksum();
+  // true only if an engine found subtitles that may be downloaded without
+  // asking (not SUBTITLE_BAD); see hasAnySubtitles() for the rest
   bool lookForSubtitles(QString lang, QString engine = "");
   bool lookForSubtitles(QStringList languages, QString engine = "");
   QList<SubtitleInfo> listSubtitles();
@@ -58,12 +60,17 @@ class QNapi {
   QString error();
   // returns engine-reported errors collected since the last call, deduplicated
   QStringList takeEngineErrors();
+  // true if any engine has results, including ones marked SUBTITLE_BAD
+  bool hasAnySubtitles() const;
 
   QStringList listLoadedEngines() const;
 
  private:
   QSharedPointer<SubtitleDownloadEngine> engineByName(QString name) const;
-  void collectEngineError(const QSharedPointer<SubtitleDownloadEngine>& e);
+  bool hasAcceptableSubtitles(
+      const QSharedPointer<SubtitleDownloadEngine>& e) const;
+  void collectEngineError(const QSharedPointer<SubtitleDownloadEngine>& e,
+                          QStringList& target);
 
   QString movie;
   QString errorMsg;

@@ -343,7 +343,9 @@ void GetThread::run() {
 
     collectEngineErrors(napi);
 
-    if (!found) {
+    // without acceptable results, results marked as possibly not matching
+    // are still offered (or skipped) by needToShowList()/bestIdx() below
+    if (!found && !napi.hasAnySubtitles()) {
       ++napiFail;
       subStatusList << SubtitleInfo::fromFailed(queue[i]);
       continue;

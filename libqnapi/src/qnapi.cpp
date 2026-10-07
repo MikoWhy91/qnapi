@@ -75,15 +75,16 @@ bool QNapi::lookForSubtitles(QString lang, QString engine) {
   if (engine.isEmpty()) {
     foreach (QSharedPointer<SubtitleDownloadEngine> e, enginesList) {
       e->setMoviePath(movie);
-      result = e->lookForSubtitles(lang) || result;
-      collectEngineError(e);
+      result = (e->lookForSubtitles(lang) && hasAcceptableSubtitles(e)) ||
+               result;
+      collectEngineError(e, engineErrors);
     }
   } else {
     QSharedPointer<SubtitleDownloadEngine> e = engineByName(engine);
     if (e) {
       e->setMoviePath(movie);
-      result = e->lookForSubtitles(lang);
-      collectEngineError(e);
+      result = e->lookForSubtitles(lang) && hasAcceptableSubtitles(e);
+      collectEngineError(e, engineErrors);
     }
   }
 
@@ -157,7 +158,7 @@ bool QNapi::download(int i) {
   currentEngine = engineByName(s.engine);
   if (!currentEngine) return false;
   bool result = currentEngine->download(s.id);
-  collectEngineError(currentEngine);
+  collectEngineError(currentEngine, engineErrors);
   return result;
 }
 
@@ -200,11 +201,26 @@ QStringList QNapi::takeEngineErrors() {
   return errors;
 }
 
-void QNapi::collectEngineError(
-    const QSharedPointer<SubtitleDownloadEngine>& e) {
+bool QNapi::hasAnySubtitles() const {
+  foreach (QSharedPointer<SubtitleDownloadEngine> e, enginesList) {
+    if (!e->subtitlesList.isEmpty()) return true;
+  }
+  return false;
+}
+
+bool QNapi::hasAcceptableSubtitles(
+    const QSharedPointer<SubtitleDownloadEngine>& e) const {
+  foreach (const SubtitleInfo& s, e->subtitlesList) {
+    if (s.resolution != SUBTITLE_BAD) return true;
+  }
+  return false;
+}
+
+void QNapi::collectEngineError(const QSharedPointer<SubtitleDownloadEngine>& e,
+                               QStringList& target) {
   QString engineError = e->lastError();
   if (engineError.isEmpty()) return;
-  if (!engineErrors.contains(engineError)) engineErrors << engineError;
+  if (!target.contains(engineError)) target << engineError;
 }
 
 QStringList QNapi::listLoadedEngines() const {

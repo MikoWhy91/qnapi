@@ -207,7 +207,9 @@ int downloadForMovie(const Console& c, const QString& movieFilePath, int i,
   bool found = findSubtitles(c, config, napi);
   printEngineErrors(c, napi);
 
-  if (!found) {
+  // without acceptable results, results marked as possibly not matching
+  // are still offered (or skipped) by selectSubtitles()
+  if (!found && !napi.hasAnySubtitles()) {
     c.printLineWarning(tr("Subtitles not found!"));
     return EC_SUBTITLES_NOT_FOUND;
   }
