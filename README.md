@@ -84,6 +84,7 @@ The API requires a personal **API key**, which is free:
 
 1. Create an account at https://www.opensubtitles.com.
 2. Open https://www.opensubtitles.com/en/consumers (*Profile > API consumers*) and create a new consumer for QNapi.
+   If you want to download without logging in, enable *allow anonymous downloads* for that consumer.
 3. Paste the key into *Settings > Engines > OpenSubtitles > Configure > API key*.
 
 Username and password are optional, but logging in raises your daily download limit. Searching is not limited.
@@ -94,6 +95,14 @@ Downloads per 24 hours, at the time of writing:
 * VIP account: 1000.
 
 When the limit is reached, QNapi shows the server's message, including when the quota resets.
+
+Only subtitles whose hash matches the video file are downloaded automatically. Other results
+found by file name are marked as possibly not matching and have to be picked from the list.
+
+The API is HTTPS-only. On Windows, Qt needs the OpenSSL DLLs next to the QNapi executable
+(`libssl-1_1.dll` and `libcrypto-1_1.dll` for Qt 5.12.4 and newer, `libeay32.dll` and
+`ssleay32.dll` for older Qt). `make install` copies them from the directory given in
+`OPENSSL_BIN_DIR` (qmake variable or environment variable) and prints a warning if they are missing.
 
 The command-line client reads the same settings. You can also set them directly in `qnapi.ini`
 (`~/.config/qnapi.ini` on Linux):
