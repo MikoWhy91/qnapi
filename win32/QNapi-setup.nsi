@@ -1,6 +1,9 @@
 ; Define your application name
 !define APPNAME "QNapi"
-!define APPVER "0.2.4-snapshot"
+; makensis /DAPPVER=x.y.z overrides the version
+!ifndef APPVER
+  !define APPVER "0.2.4-snapshot"
+!endif
 !define APPNAMEANDVERSION "${APPNAME} ${APPVER}"
 
 !include "MUI2.nsh"
