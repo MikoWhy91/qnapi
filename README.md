@@ -1,7 +1,7 @@
 # QNapi [![Build Status](https://travis-ci.org/QNapi/qnapi.svg?branch=master)](https://travis-ci.org/QNapi/qnapi) [![Build status](https://ci.appveyor.com/api/projects/status/mdebep2uhrc3oagq/branch/master?svg=true)](https://ci.appveyor.com/project/krzemin/qnapi/branch/master) [![GitHub release](https://img.shields.io/github/release/QNapi/qnapi.svg)](https://github.com/QNapi/qnapi/releases) [![Github All Releases](https://img.shields.io/github/downloads/QNapi/qnapi/total.svg)](https://qnapi.github.io/#download)
 
 QNapi is free software for automatic fetching subtitles for given movie file.
-It uses online databases such as NapiProjekt, OpenSubtitles and Napisy24.
+It uses online databases such as NapiProjekt, OpenSubtitles.com and Napisy24.
 It is based on Qt5 library, so it can be launched on any supported operating
 system, including Windows, OSX and Linux.
 
@@ -74,6 +74,36 @@ After you locate your binaries, you can run the application.
 > For proper subtitle extraction after download, *7zip* executable is required to be passed in application's settings.
 > Linux users have to install 7zip binary package from distribution repositories or compile on its own.
 > For Windows and OSX there are pre-built binaries included in this repository, in `win32` and `macx` directories appropriately and should be automatically detected by the application.
+
+## OpenSubtitles configuration
+
+The OpenSubtitles engine uses the [OpenSubtitles.com REST API](https://opensubtitles.stoplight.io/docs/opensubtitles-api).
+The legacy opensubtitles.org XML-RPC API is no longer available for regular accounts.
+
+The API requires a personal **API key**, which is free:
+
+1. Create an account at https://www.opensubtitles.com.
+2. Open https://www.opensubtitles.com/en/consumers (*Profile > API consumers*) and create a new consumer for QNapi.
+3. Paste the key into *Settings > Engines > OpenSubtitles > Configure > API key*.
+
+Username and password are optional, but logging in raises your daily download limit. Searching is not limited.
+Downloads per 24 hours, at the time of writing:
+
+* without logging in: 5 per IP address,
+* logged-in free account: 10-20, depending on your rank,
+* VIP account: 1000.
+
+When the limit is reached, QNapi shows the server's message, including when the quota resets.
+
+The command-line client reads the same settings. You can also set them directly in `qnapi.ini`
+(`~/.config/qnapi.ini` on Linux):
+
+```
+[OpenSubtitles]
+apiKey=your-api-key
+nick=optional-username
+password=optional-password
+```
 
 ## Making redistributable package
 
