@@ -126,15 +126,16 @@ bool QNapi::needToShowList() {
   // SUBTITLE_BAD results are never picked automatically, only from the list
   theBestIdx = -1;
   int firstAcceptableIdx = -1;
+  int acceptableCount = 0;
   bool foundBestIdx = false;
   for (int i = 0; i < subtitles.size(); ++i) {
-    if (subtitles[i].resolution == SUBTITLE_GOOD) {
+    if (subtitles[i].resolution == SUBTITLE_BAD) continue;
+    ++acceptableCount;
+    if (firstAcceptableIdx == -1) firstAcceptableIdx = i;
+    if (!foundBestIdx && subtitles[i].resolution == SUBTITLE_GOOD) {
       theBestIdx = i;
       foundBestIdx = true;
-      break;
     }
-    if (firstAcceptableIdx == -1 && subtitles[i].resolution != SUBTITLE_BAD)
-      firstAcceptableIdx = i;
   }
   if (!foundBestIdx) theBestIdx = firstAcceptableIdx;
 
@@ -145,7 +146,7 @@ bool QNapi::needToShowList() {
 
   if (theBestIdx == -1) return !subtitles.isEmpty();
 
-  if (subtitles.size() <= 1) return false;
+  if (acceptableCount <= 1) return false;
 
   return !foundBestIdx;
 }

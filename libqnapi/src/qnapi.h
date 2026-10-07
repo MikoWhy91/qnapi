@@ -45,7 +45,6 @@ class QNapi {
   // true only if an engine found subtitles that may be downloaded without
   // asking (not SUBTITLE_BAD); see hasAnySubtitles() for the rest
   bool lookForSubtitles(QString lang, QString engine = "");
-  bool lookForSubtitles(QStringList languages, QString engine = "");
   QList<SubtitleInfo> listSubtitles();
 
   bool needToShowList();
