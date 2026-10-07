@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
-    <height>146</height>
+    <width>460</width>
+    <height>210</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>330</width>
-    <height>130</height>
+    <width>420</width>
+    <height>190</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>450</width>
-    <height>180</height>
+    <width>640</width>
+    <height>300</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -27,27 +27,47 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
+    <widget class="QLabel" name="lbApiKey">
+     <property name="text">
+      <string>API key:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="4">
+    <widget class="QLineEdit" name="leApiKey">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>required</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
     <widget class="QLabel" name="lbNick">
      <property name="text">
       <string>Login:</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1" colspan="3">
+   <item row="1" column="1" colspan="4">
     <widget class="QLineEdit" name="leNick">
      <property name="text">
       <string/>
      </property>
+     <property name="placeholderText">
+      <string>optional</string>
+     </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="lbPass">
      <property name="text">
       <string>Password:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="3">
+   <item row="2" column="1" colspan="4">
     <widget class="QLineEdit" name="lePass">
      <property name="text">
       <string/>
@@ -55,9 +75,22 @@
      <property name="echoMode">
       <enum>QLineEdit::Password</enum>
      </property>
+     <property name="placeholderText">
+      <string>optional</string>
+     </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="4">
+   <item row="3" column="0" colspan="5">
+    <widget class="QLabel" name="lbHint">
+     <property name="text">
+      <string>An API key is free after registering an application in your opensubtitles.com profile (API consumers). Login and password are optional and raise the daily download limit.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="5">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -70,34 +103,41 @@
      </property>
     </spacer>
    </item>
-   <item row="3" column="0">
+   <item row="5" column="0">
     <widget class="QPushButton" name="pbRegister">
      <property name="text">
       <string>Create an account</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="5" column="1">
+    <widget class="QPushButton" name="pbGetApiKey">
+     <property name="text">
+      <string>Get an API key</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>53</width>
+       <width>20</width>
        <height>20</height>
       </size>
      </property>
     </spacer>
    </item>
-   <item row="3" column="2">
+   <item row="5" column="3">
     <widget class="QPushButton" name="pbCancel">
      <property name="text">
       <string>Cancel</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="3">
+   <item row="5" column="4">
     <widget class="QPushButton" name="pbSave">
      <property name="text">
       <string>Save</string>
@@ -108,6 +148,22 @@
  </widget>
  <resources/>
  <connections>
+  <connection>
+   <sender>leApiKey</sender>
+   <signal>returnPressed()</signal>
+   <receiver>frmOpenSubtitlesConfig</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>179</x>
+     <y>72</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>pbCancel</sender>
    <signal>clicked()</signal>

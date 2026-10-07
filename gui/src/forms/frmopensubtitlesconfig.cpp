@@ -24,6 +24,7 @@ frmOpenSubtitlesConfig::frmOpenSubtitlesConfig(const EngineConfig &config,
     : QDialog(parent, f), config(config) {
   ui.setupUi(this);
 
+  ui.leApiKey->setText(config.apiKey());
   ui.leNick->setText(config.nick());
   ui.lePass->setText(config.password());
 
@@ -32,6 +33,7 @@ frmOpenSubtitlesConfig::frmOpenSubtitlesConfig(const EngineConfig &config,
   setWindowIcon(openSubtitlesIcon);
 
   connect(ui.pbRegister, SIGNAL(clicked()), this, SLOT(pbRegisterClicked()));
+  connect(ui.pbGetApiKey, SIGNAL(clicked()), this, SLOT(pbGetApiKeyClicked()));
 
   QRect position = frameGeometry();
   position.moveCenter(QDesktopWidget().availableGeometry().center());
@@ -41,8 +43,14 @@ frmOpenSubtitlesConfig::frmOpenSubtitlesConfig(const EngineConfig &config,
 EngineConfig frmOpenSubtitlesConfig::getConfig() const { return config; }
 
 void frmOpenSubtitlesConfig::accept() {
-  config = config.setNick(ui.leNick->text()).setPassword(ui.lePass->text());
+  config = config.setNick(ui.leNick->text())
+               .setPassword(ui.lePass->text())
+               .setApiKey(ui.leApiKey->text().trimmed());
   QDialog::accept();
+}
+
+void frmOpenSubtitlesConfig::pbGetApiKeyClicked() {
+  QDesktopServices::openUrl(OpenSubtitlesDownloadEngine::apiKeyUrl);
 }
 
 void frmOpenSubtitlesConfig::pbRegisterClicked() {
