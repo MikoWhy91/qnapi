@@ -133,7 +133,7 @@ Maybe<int> selectSubtitles(const Console& c, const QNapiConfig& config,
       c.printLineWarning(
           tr("Found subtitles do not match the video file and need to be "
              "chosen from the list (option -s)."));
-      return nothing();
+      return just(-1);
     }
     return just(napi.bestIdx());
   } else {
@@ -216,6 +216,11 @@ int downloadForMovie(const Console& c, const QString& movieFilePath, int i,
 
   Maybe<int> selIdx = selectSubtitles(c, config, napi);
 
+  if (selIdx && selIdx.value() < 0) {
+    napi.cleanup();
+    return EC_SUBTITLES_NOT_FOUND;
+  }
+
   if (selIdx) {
     return finishSubtitles(selIdx.value(), c, napi);
   }
@@ -235,10 +240,12 @@ int downloadSubtitlesFor(const Console& c, const QStringList& movieFilePaths,
   QNapi napi(config);
 
   int total = movieFilePaths.size();
+  int firstFailure = EC_OK;
   for (int i = 1; i <= total; ++i) {
     QString movieFilePath = movieFilePaths[i - 1];
 
     int result = downloadForMovie(c, movieFilePath, i, total, config, napi);
+    if (firstFailure == EC_OK) firstFailure = result;
     if (result == EC_P7ZIP_UNAVAILABLE || result == EC_CANNOT_WRITE_TMP_DIR) {
       if (i < total) {
         c.printLineOrdinary(
@@ -250,6 +257,6 @@ int downloadSubtitlesFor(const Console& c, const QStringList& movieFilePaths,
     }
   }
 
-  return EC_OK;
+  return firstFailure;
 }
 };  // namespace CliSubtitlesDownloader
