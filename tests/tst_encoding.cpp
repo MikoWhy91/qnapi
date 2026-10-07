@@ -141,6 +141,64 @@ class TestEncoding : public QObject {
              expected);
   }
 
+  void decodeDropsBom() {
+    QCOMPARE(EncodingUtils::decode(utf8Bom + polishUtf8, "UTF-8"), polish);
+    QByteArray utf16 = QByteArray("\xff\xfe") +
+                       QByteArray(reinterpret_cast<const char*>(polish.utf16()),
+                                  polish.size() * 2);
+    QCOMPARE(EncodingUtils::decode(utf16, "UTF-16"), polish);
+  }
+
+  void autoDetectedEncodingIsUsed() {
+    // the configured source encoding is only a fallback
+    QCOMPARE(postProcess(polishCp1250,
+                         ppConfig(ECM_CHANGE, "ISO-8859-2", true, "UTF-8")),
+             polishUtf8);
+    QCOMPARE(postProcess(polishIso88592,
+                         ppConfig(ECM_CHANGE, "windows-1250", true, "UTF-8")),
+             polishUtf8);
+    QCOMPARE(postProcess(polishUtf8, ppConfig(ECM_CHANGE, "windows-1250", true,
+                                              "windows-1250")),
+             polishCp1250);
+  }
+
+  // upstream #200: BOM left behind when converting UTF-8+BOM to UTF-8
+  void utf8BomIsRemoved_data() {
+    QTest::addColumn<QString>("from");
+    QTest::addColumn<bool>("autoDetect");
+    QTest::addColumn<QString>("to");
+    QTest::addColumn<QByteArray>("expected");
+    QTest::newRow("default settings")
+        << "windows-1250" << true << "UTF-8" << polishUtf8;
+    QTest::newRow("explicit UTF-8")
+        << "UTF-8" << false << "UTF-8" << polishUtf8;
+    QTest::newRow("to windows-1250")
+        << "UTF-8" << false << "windows-1250" << polishCp1250;
+    QTest::newRow("detected, to ISO-8859-2")
+        << "windows-1250" << true << "ISO-8859-2" << polishIso88592;
+  }
+
+  void utf8BomIsRemoved() {
+    QFETCH(QString, from);
+    QFETCH(bool, autoDetect);
+    QFETCH(QString, to);
+    QFETCH(QByteArray, expected);
+    QCOMPARE(postProcess(utf8Bom + polishUtf8,
+                         ppConfig(ECM_CHANGE, from, autoDetect, to)),
+             expected);
+  }
+
+  void utf8BomIsRemovedWithFormatConversion() {
+    PostProcessingConfig config(true, ECM_CHANGE, "windows-1250", true, "UTF-8",
+                                false, "srt", "", true, false, QStringList());
+    QByteArray output =
+        postProcess(utf8Bom + "1\r\n00:00:01,000 --> 00:00:02,000\r\n" +
+                        polishUtf8 + "\r\n\r\n",
+                    config);
+    QCOMPARE(output.replace("\r\n", "\n"),
+             "1\n00:00:01,000 --> 00:00:02,000\n" + polishUtf8 + "\n\n");
+  }
+
   void replaceDiacriticsInFile() {
     QCOMPARE(postProcess(polishCp1250,
                          ppConfig(ECM_REPLACE_DIACRITICS, "", false, "")),

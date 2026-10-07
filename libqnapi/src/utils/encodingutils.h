@@ -30,7 +30,7 @@ class EncodingUtils {
   static bool isEncodingAvailable(const QString& encoding);
   static QStringList availableEncodings();
 
-  // plain conversion with the named encoding
+  // plain conversion with the named encoding; decode() drops a leading BOM
   static QString decode(const QByteArray& data, const QString& encoding);
   static QByteArray encode(const QString& text, const QString& encoding);
 

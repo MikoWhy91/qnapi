@@ -198,7 +198,11 @@ QStringList EncodingUtils::availableEncodings() {
 
 QString EncodingUtils::decode(const QByteArray &data, const QString &encoding) {
   QTextCodec *codec = codecFor(encoding);
-  return codec ? codec->toUnicode(data) : QString();
+  if (!codec) return QString();
+  QString text = codec->toUnicode(data);
+  // a byte order mark must not survive a change of encoding (upstream #200)
+  if (text.startsWith(QChar(0xFEFF))) text.remove(0, 1);
+  return text;
 }
 
 QByteArray EncodingUtils::encode(const QString &text, const QString &encoding) {

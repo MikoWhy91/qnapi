@@ -115,7 +115,7 @@ bool SubtitlePostProcessor::ppChangeSubtitlesEncoding(
 
   if (from.isEmpty()) return false;
 
-  return ppChangeSubtitlesEncoding(from, to);
+  return ppChangeSubtitlesEncoding(subtitleFilePath, from, to);
 }
 
 bool SubtitlePostProcessor::ppRemoveLinesContainingWords(
