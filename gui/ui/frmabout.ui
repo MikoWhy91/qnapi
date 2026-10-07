@@ -61,7 +61,7 @@
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="lbAbout">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;QNapi is a program for automatic downloading and matching subtitles for movies. &lt;/p&gt;&lt;p&gt;The program is distributed under the GNU General Public License version second or later.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;http://qnapi.github.io&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://qnapi.github.io&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;I thank all those who in any way supported the development of the project.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;QNapi is a program for automatic downloading and matching subtitles for movies. &lt;/p&gt;&lt;p&gt;This is a maintained fork of QNapi, originally created by Piotr Krzemiński.&lt;/p&gt;&lt;p&gt;The program is distributed under the GNU General Public License version second or later.&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/MikoWhy91/qnapi&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://github.com/MikoWhy91/qnapi&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Thanks to the original author and to everyone who has supported the development of the project in any way.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="textFormat">
           <enum>Qt::RichText</enum>

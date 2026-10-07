@@ -1,12 +1,12 @@
 Source: qnapi
 Section: net
 Priority: optional
-Maintainer: Piotr Krzemiński <pio.krzeminski@gmail.com>
+Maintainer: Mikołaj Stańczak <poczta@mikolajstanczak.pl>
 Build-Depends: debhelper (>=9), qtbase5-dev, pkg-config, libmediainfo-dev, zlib1g-dev
 Standards-Version: 3.9.7
-Homepage: http://qnapi.github.io/
-Vcs-Git: git://github.com/QNapi/qnapi.git
-Vcs-Browser: https://github.com/QNapi/qnapi
+Homepage: https://github.com/MikoWhy91/qnapi
+Vcs-Git: https://github.com/MikoWhy91/qnapi.git
+Vcs-Browser: https://github.com/MikoWhy91/qnapi
 
 Package: qnapi
 Architecture: any

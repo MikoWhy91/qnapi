@@ -5,9 +5,18 @@ It uses online databases such as NapiProjekt, OpenSubtitles.com and Napisy24.
 It is based on Qt5 library, so it can be launched on any supported operating
 system, including Windows, OSX and Linux.
 
+This repository is a maintained fork of QNapi. QNapi was originally created and
+developed by Piotr Krzemiński; all credit for the original program goes to him and
+to the contributors of the original project. The fork keeps the original GPL license
+and copyright notices.
+
 ## Binary packages
 
-Latest binary packages are available at http://qnapi.github.io/#download
+Binary packages of this fork are published at https://github.com/MikoWhy91/qnapi/releases
+
+## Reporting issues
+
+Please report bugs and feature requests at https://github.com/MikoWhy91/qnapi/issues
 
 ## Building from source
 
@@ -77,13 +86,16 @@ After you locate your binaries, you can run the application.
 
 ## OpenSubtitles configuration
 
-The OpenSubtitles engine uses the [OpenSubtitles.com REST API](https://opensubtitles.stoplight.io/docs/opensubtitles-api).
+The OpenSubtitles engine uses the [OpenSubtitles.com REST API](https://opensubtitles.stoplight.io/docs/opensubtitles-api/e3750fd63a100-getting-started).
 The legacy opensubtitles.org XML-RPC API is no longer available for regular accounts.
 
 The API requires a personal **API key**, which is free:
 
 1. Create an account at https://www.opensubtitles.com.
-2. Open https://www.opensubtitles.com/en/consumers (*Profile > API consumers*) and create a new consumer for QNapi.
+2. Open https://www.opensubtitles.com/en/consumers (*Profile > API consumers*) and create a new consumer
+   with the app name **`QNapi`**. QNapi sends the `User-Agent` header `QNapi v<version>`
+   (e.g. `QNapi v0.2.4-snapshot`) with every request, and OpenSubtitles expects the User-Agent to
+   name the application the API key was registered for.
    If you want to download without logging in, enable *allow anonymous downloads* for that consumer.
 3. Paste the key into *Settings > Engines > OpenSubtitles > Configure > API key*.
 
