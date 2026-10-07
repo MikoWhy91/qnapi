@@ -1,4 +1,7 @@
 environment:
+  global:
+    # 32-bit OpenSSL 1.0.2 preinstalled on AppVeyor images, needed by Qt < 5.12.4
+    OPENSSL_BIN_DIR: C:\OpenSSL-Win32\bin
   matrix:
   - QT5: C:\Qt\5.4\mingw491_32
     MINGW: C:\Qt\Tools\mingw491_32
