@@ -144,9 +144,16 @@ Maybe<int> selectSubtitles(const Console& c, const QNapiConfig& config,
   }
 }
 
+void printEngineErrors(const Console& c, QNapi& napi) {
+  foreach (QString engineError, napi.takeEngineErrors()) {
+    c.printLineError(engineError);
+  }
+}
+
 int finishSubtitles(int selIdx, const Console& c, QNapi& napi) {
   c.printLineOrdinary(tr("Downloading subtitles..."));
   if (!napi.download(selIdx)) {
+    printEngineErrors(c, napi);
     c.printLineError(tr("Unable to download subtitles!"));
     return EC_COULD_NOT_DOWNLOAD;
   }
@@ -191,6 +198,7 @@ int downloadForMovie(const Console& c, const QString& movieFilePath, int i,
   napi.clearSubtitlesList();
 
   bool found = findSubtitles(c, config, napi);
+  printEngineErrors(c, napi);
 
   if (!found) {
     c.printLineWarning(tr("Subtitles not found!"));

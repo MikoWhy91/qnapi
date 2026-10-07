@@ -170,6 +170,10 @@ void frmProgress::downloadFinished() {
       QMessageBox::critical(0, tr("Critical error!"),
                             getThread.criticalMessage);
     } else if (queue.size() > 0 && !getThread.subStatusList.isEmpty()) {
+      if (!getThread.engineErrors.isEmpty()) {
+        QMessageBox::warning(0, tr("Subtitle engine problems"),
+                             getThread.engineErrors.join("\n\n"));
+      }
       summary.setSummaryList(getThread.subStatusList);
       summary.exec();
     }
@@ -241,9 +245,16 @@ void GetThread::subtitlesSelected(int idx) {
     }               \
   }
 
+void GetThread::collectEngineErrors(QNapi &napi) {
+  foreach (QString engineError, napi.takeEngineErrors()) {
+    if (!engineErrors.contains(engineError)) engineErrors << engineError;
+  }
+}
+
 void GetThread::run() {
   abort = false;
   criticalMessage.clear();
+  engineErrors.clear();
   if (queue.size() <= 0) return;
 
   napiSuccess = napiFail = 0;
@@ -330,6 +341,8 @@ void GetThread::run() {
       }
     }
 
+    collectEngineErrors(napi);
+
     if (!found) {
       ++napiFail;
       subStatusList << SubtitleInfo::fromFailed(queue[i]);
@@ -359,7 +372,10 @@ void GetThread::run() {
     emit progressChange(i, queue.size(), 0.5);
     emit actionChange(tr("Downloading subtitles file..."));
 
-    if (!napi.download(selIdx)) {
+    bool downloaded = napi.download(selIdx);
+    collectEngineErrors(napi);
+
+    if (!downloaded) {
       ABORT_POINT
 
       ++napiFail;
