@@ -129,6 +129,12 @@ Maybe<int> selectSubtitles(const Console& c, const QNapiConfig& config,
   }
 
   if (!showList) {
+    if (napi.bestIdx() < 0) {
+      c.printLineWarning(
+          tr("Found subtitles do not match the video file and need to be "
+             "chosen from the list (option -s)."));
+      return nothing();
+    }
     return just(napi.bestIdx());
   } else {
     QList<SubtitleInfo> subtitlesList = napi.listSubtitles();
