@@ -20,6 +20,7 @@
 #include <QJsonDocument>
 #include <QNetworkReply>
 #include <QPair>
+#include <QSslSocket>
 #include <QStringList>
 #include <QTimer>
 
@@ -28,11 +29,16 @@
 namespace OpenSubtitlesDownloadEngineConst {
 const QString defaultApiBaseUrl = "https://api.opensubtitles.com/api/v1";
 const int requestTimeoutMs = 30000;
+const int logoutTimeoutMs = 3000;
+const int lowQuotaWarningThreshold = 2;
 const QStringList subtitleExtensions = {"srt", "sub", "txt", "ssa",
                                         "ass", "smi", "vtt", "mpl"};
 }  // namespace OpenSubtitlesDownloadEngineConst
 
 using namespace OpenSubtitlesDownloadEngineConst;
+
+std::atomic<bool> OpenSubtitlesDownloadEngine::missingApiKeyReported(false);
+std::atomic<bool> OpenSubtitlesDownloadEngine::missingSslReported(false);
 
 SubtitleDownloadEngineMetadata OpenSubtitlesDownloadEngine::metadata =
     SubtitleDownloadEngineMetadata(
@@ -99,10 +105,24 @@ bool OpenSubtitlesDownloadEngine::lookForSubtitles(QString lang) {
   error.clear();
 
   if (engineConfig.apiKey().isEmpty()) {
-    error = QObject::tr(
-        "OpenSubtitles requires an API key. Register an application at "
-        "opensubtitles.com (Profile > API consumers) and enter the key in the "
-        "OpenSubtitles engine settings.");
+    // all engines are enabled by default, so only mention the key once
+    if (!missingApiKeyReported.exchange(true)) {
+      error = QObject::tr(
+          "OpenSubtitles requires an API key. Register an application at "
+          "opensubtitles.com (Profile > API consumers) and enter the key in "
+          "the OpenSubtitles engine settings.");
+    }
+    return false;
+  }
+
+  if (!QSslSocket::supportsSsl()) {
+    if (!missingSslReported.exchange(true)) {
+      error = QObject::tr(
+          "OpenSubtitles needs HTTPS, but the OpenSSL libraries were not "
+          "found (Qt was built for OpenSSL %1). Install them next to the "
+          "QNapi executable.")
+                  .arg(QSslSocket::sslLibraryBuildVersionString());
+    }
     return false;
   }
 
@@ -115,37 +135,22 @@ bool OpenSubtitlesDownloadEngine::lookForSubtitles(QString lang) {
       !engineConfig.nick().isEmpty() && !engineConfig.password().isEmpty();
   if (hasCredentials && !isLogged() && !loginFailed) login();
 
-  QSet<qint64> seenFileIds;
-  bool anyHashMatch = false;
+  // the API puts moviehash matches first and adds file name matches after them
+  QUrlQuery query;
+  query.addQueryItem("foreign_parts_only", "exclude");
+  query.addQueryItem("languages", apiLang);
+  query.addQueryItem("moviehash", checkSum.toLower());
+  QString movieBaseName = QFileInfo(movie).completeBaseName();
+  if (!movieBaseName.isEmpty())
+    query.addQueryItem("query", movieBaseName.toLower());
 
-  QUrlQuery hashQuery;
-  hashQuery.addQueryItem("languages", apiLang);
-  hashQuery.addQueryItem("moviehash", checkSum.toLower());
-  if (!search(hashQuery, &seenFileIds, &anyHashMatch)) return false;
-
-  if (!anyHashMatch) {
-    QString movieName = QFileInfo(movie).completeBaseName().toLower();
-    if (!movieName.isEmpty()) {
-      QUrlQuery nameQuery;
-      nameQuery.addQueryItem("languages", apiLang);
-      nameQuery.addQueryItem("query", movieName);
-      search(nameQuery, &seenFileIds, &anyHashMatch);
-    }
-  }
-
-  return !subtitlesList.isEmpty();
-}
-
-bool OpenSubtitlesDownloadEngine::search(const QUrlQuery& query,
-                                         QSet<qint64>* seenFileIds,
-                                         bool* anyHashMatch) {
   Response r = send(apiRequest("/subtitles", query), "GET");
   if (r.status != 200) {
     error = errorFor(r);
     return false;
   }
 
-  QString movieBaseName = QFileInfo(movie).completeBaseName();
+  QSet<qint64> seenFileIds;
 
   for (const QJsonValue& item : r.json.value("data").toArray()) {
     QJsonObject attributes = item.toObject().value("attributes").toObject();
@@ -156,10 +161,8 @@ bool OpenSubtitlesDownloadEngine::search(const QUrlQuery& query,
 
     QJsonObject file = files.at(0).toObject();
     qint64 fileId = file.value("file_id").toVariant().toLongLong();
-    if (fileId <= 0 || seenFileIds->contains(fileId)) continue;
-    seenFileIds->insert(fileId);
-
-    if (attributes.value("moviehash_match").toBool()) *anyHashMatch = true;
+    if (fileId <= 0 || seenFileIds.contains(fileId)) continue;
+    seenFileIds.insert(fileId);
 
     QString fileName = file.value("file_name").toString();
     QString format = QFileInfo(fileName).suffix().toLower();
@@ -168,33 +171,19 @@ bool OpenSubtitlesDownloadEngine::search(const QUrlQuery& query,
     QString subtitleName = attributes.value("release").toString().trimmed();
     if (subtitleName.isEmpty()) subtitleName = movieBaseName;
 
+    // results found only by file name may belong to another release or
+    // episode; SUBTITLE_BAD keeps QNapi from downloading them without asking
+    SubtitleResolution resolution =
+        attributes.value("moviehash_match").toBool() ? SUBTITLE_GOOD
+                                                     : SUBTITLE_BAD;
+
     subtitlesList << SubtitleInfo(
         fromApiLanguage(attributes.value("language").toString()), meta().name(),
         QString::number(fileId), subtitleName,
-        attributes.value("comments").toString().trimmed(), format,
-        resolution(attributes, fileName));
+        attributes.value("comments").toString().trimmed(), format, resolution);
   }
 
-  return true;
-}
-
-SubtitleResolution OpenSubtitlesDownloadEngine::resolution(
-    const QJsonObject& attributes, const QString& fileName) const {
-  if (attributes.value("moviehash_match").toBool()) return SUBTITLE_GOOD;
-
-  QString movieBaseName = QFileInfo(movie).completeBaseName();
-  QString release = attributes.value("release").toString().trimmed();
-
-  if (!fileName.isEmpty() &&
-      QFileInfo(fileName).completeBaseName().compare(
-          movieBaseName, Qt::CaseInsensitive) == 0)
-    return SUBTITLE_GOOD;
-
-  if (!release.isEmpty() &&
-      release.compare(movieBaseName, Qt::CaseInsensitive) == 0)
-    return SUBTITLE_GOOD;
-
-  return SUBTITLE_UNKNOWN;
+  return !subtitlesList.isEmpty();
 }
 
 QList<SubtitleInfo> OpenSubtitlesDownloadEngine::listSubtitles() {
@@ -235,12 +224,19 @@ bool OpenSubtitlesDownloadEngine::download(QUuid id) {
   Response file = send(fileRequest, "GET");
   if (file.status != 200 || file.body.isEmpty()) {
     error = file.status == 0
-                ? QObject::tr("OpenSubtitles: network error: %1")
-                      .arg(file.networkError)
+                ? errorFor(file)
                 : QObject::tr("OpenSubtitles: subtitle file download failed "
                               "(HTTP %1).")
                       .arg(file.status);
     return false;
+  }
+
+  QJsonValue remaining = r.json.value("remaining");
+  if (remaining.isDouble() && remaining.toInt() <= lowQuotaWarningThreshold) {
+    error = QObject::tr("OpenSubtitles: %n download(s) left in the daily "
+                        "quota. %1",
+                        nullptr, qMax(0, remaining.toInt()))
+                .arg(r.json.value("message").toString().trimmed());
   }
 
   subFileName = generateTmpFileName() + "." + s.format;
@@ -312,7 +308,8 @@ bool OpenSubtitlesDownloadEngine::login() {
 }
 
 void OpenSubtitlesDownloadEngine::logout() {
-  send(apiRequest("/logout"), "DELETE");
+  // keep shutdown fast when offline
+  send(apiRequest("/logout"), "DELETE", QByteArray(), logoutTimeoutMs);
   token.clear();
 }
 
@@ -358,7 +355,7 @@ QNetworkRequest OpenSubtitlesDownloadEngine::apiRequest(
 
 OpenSubtitlesDownloadEngine::Response OpenSubtitlesDownloadEngine::send(
     const QNetworkRequest& request, const QByteArray& verb,
-    const QByteArray& data) {
+    const QByteArray& data, int timeoutMs) {
   QNetworkRequest req(request);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
   req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
@@ -373,24 +370,46 @@ OpenSubtitlesDownloadEngine::Response OpenSubtitlesDownloadEngine::send(
     reply = manager.get(req);
   }
 
+  bool timedOut = false;
   QTimer timer;
   timer.setSingleShot(true);
-  QObject::connect(&timer, &QTimer::timeout, reply, &QNetworkReply::abort);
+  QObject::connect(&timer, &QTimer::timeout, [&timedOut, reply]() {
+    timedOut = true;
+    reply->abort();
+  });
   QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-  timer.start(requestTimeoutMs);
+  timer.start(timeoutMs > 0 ? timeoutMs : requestTimeoutMs);
   if (!reply->isFinished()) loop.exec();
+  timer.stop();
 
   Response r;
-  r.status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-  r.body = reply->readAll();
-  r.json = QJsonDocument::fromJson(r.body).object();
-  if (r.status == 0) r.networkError = reply->errorString();
+  r.status = 0;
+  r.timedOut = timedOut;
+
+  if (!timedOut) {
+    r.status =
+        reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    r.reason = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute)
+                   .toString();
+    if (reply->isOpen()) r.body = reply->readAll();
+    r.json = QJsonDocument::fromJson(r.body).object();
+    if (r.status == 0) r.networkError = reply->errorString();
+  }
 
   reply->deleteLater();
   return r;
 }
 
 QString OpenSubtitlesDownloadEngine::errorFor(const Response& r) const {
+  if (r.timedOut) {
+    return QObject::tr(
+        "OpenSubtitles did not respond in time. Check your internet "
+        "connection and try again.");
+  }
+  if (r.status == 0) {
+    return QObject::tr("OpenSubtitles: network error: %1").arg(r.networkError);
+  }
+
   QString message = r.json.value("message").toString().trimmed();
   if (message.isEmpty() && r.json.value("errors").isArray()) {
     QStringList errors;
@@ -398,13 +417,13 @@ QString OpenSubtitlesDownloadEngine::errorFor(const Response& r) const {
       errors << e.toString();
     message = errors.join("; ");
   }
+  // e.g. HTML error pages from a proxy or a 5xx without a JSON body
+  if (message.isEmpty()) message = r.reason;
+  if (message.isEmpty()) message = QObject::tr("no details");
 
   bool quotaExhausted = r.status == 406 || r.json.contains("reset_time") ||
                         message.contains("allowed");
 
-  if (r.status == 0) {
-    return QObject::tr("OpenSubtitles: network error: %1").arg(r.networkError);
-  }
   if (quotaExhausted && (r.status == 406 || r.status == 401)) {
     QString text =
         QObject::tr("OpenSubtitles download quota exhausted: %1").arg(message);
@@ -415,20 +434,22 @@ QString OpenSubtitlesDownloadEngine::errorFor(const Response& r) const {
     }
     return text;
   }
-  if (r.status == 401) {
+  if (r.status == 403 && message.contains("consume", Qt::CaseInsensitive)) {
+    // this is how the API reports a missing or invalid API key
     return QObject::tr(
         "OpenSubtitles rejected the API key. Check the key in the "
         "OpenSubtitles engine settings.");
   }
+  if (r.status == 403) {
+    return QObject::tr("OpenSubtitles refused the request: %1").arg(message);
+  }
+  if (r.status == 401) {
+    return QObject::tr(
+        "OpenSubtitles rejected the login: check your username and password "
+        "in the OpenSubtitles engine settings.");
+  }
   if (r.status == 429) {
     return QObject::tr("OpenSubtitles rate limit exceeded, try again shortly.");
-  }
-  if (r.status == 403) {
-    // an invalid API key is reported as 403 "You cannot consume this service"
-    return QObject::tr(
-               "OpenSubtitles refused the request (%1). Check the API key in "
-               "the OpenSubtitles engine settings.")
-        .arg(message);
   }
   return QObject::tr("OpenSubtitles returned HTTP %1: %2")
       .arg(r.status)

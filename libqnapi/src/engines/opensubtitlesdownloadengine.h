@@ -27,6 +27,8 @@
 #include <QSet>
 #include <QUrlQuery>
 
+#include <atomic>
+
 class OpenSubtitlesDownloadEngine : public SubtitleDownloadEngine {
  public:
   OpenSubtitlesDownloadEngine(
@@ -56,10 +58,15 @@ class OpenSubtitlesDownloadEngine : public SubtitleDownloadEngine {
  private:
   struct Response {
     int status;
+    bool timedOut;
+    QString reason;
     QJsonObject json;
     QByteArray body;
     QString networkError;
   };
+
+  static std::atomic<bool> missingApiKeyReported;
+  static std::atomic<bool> missingSslReported;
 
   EngineConfig engineConfig;
   QString userAgent;
@@ -78,15 +85,10 @@ class OpenSubtitlesDownloadEngine : public SubtitleDownloadEngine {
   bool login();
   void logout();
 
-  bool search(const QUrlQuery& query, QSet<qint64>* seenFileIds,
-              bool* anyHashMatch);
-  SubtitleResolution resolution(const QJsonObject& attributes,
-                                const QString& fileName) const;
-
   QNetworkRequest apiRequest(const QString& path,
                              const QUrlQuery& query = QUrlQuery()) const;
   Response send(const QNetworkRequest& req, const QByteArray& verb,
-                const QByteArray& data = QByteArray());
+                const QByteArray& data = QByteArray(), int timeoutMs = 0);
   QString errorFor(const Response& r) const;
 };
 
