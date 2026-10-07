@@ -18,7 +18,14 @@
 #include "config/engineconfig.h"
 #include "engines/subtitledownloadengine.h"
 #include "utils/p7zipdecoder.h"
-#include "utils/syncxmlrpc.h"
+
+#include <QByteArray>
+#include <QEventLoop>
+#include <QJsonObject>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QSet>
+#include <QUrlQuery>
 
 class OpenSubtitlesDownloadEngine : public SubtitleDownloadEngine {
  public:
@@ -30,6 +37,7 @@ class OpenSubtitlesDownloadEngine : public SubtitleDownloadEngine {
 
   static SubtitleDownloadEngineMetadata metadata;
   static const char* const pixmapData[];
+  static const QUrl apiKeyUrl;
 
   SubtitleDownloadEngineMetadata meta() const;
   const char* const* enginePixmapData() const;
@@ -40,23 +48,46 @@ class OpenSubtitlesDownloadEngine : public SubtitleDownloadEngine {
   bool download(QUuid id);
   bool unpack(QUuid id);
   void cleanup();
+  QString lastError() const;
+
+  static QString toApiLanguage(const QString& lang);
+  static QString fromApiLanguage(const QString& apiLang);
 
  private:
+  struct Response {
+    int status;
+    QJsonObject json;
+    QByteArray body;
+    QString networkError;
+  };
+
   EngineConfig engineConfig;
-  QSharedPointer<const P7ZipDecoder> p7zipDecoder;
-  QString qnapiDisplayableVersion;
-  QString language;
-  SyncXmlRpc rpc;
+  QString userAgent;
+  QString apiBaseUrl;
+  QString token;
+  bool loginFailed;
+  QString error;
 
   quint64 fileSize;
-  QString subFileName, token;
+  QString subFileName;
 
-  // sprawdza czy dana instancja klasy jest zalogowana na sewerze
-  bool isLogged() { return !token.isEmpty(); }
-  // loguje na serwer OpenSubtitles
+  QNetworkAccessManager manager;
+  QEventLoop loop;
+
+  bool isLogged() const { return !token.isEmpty(); }
   bool login();
-  // wylogowuje z serwera
   void logout();
+
+  bool search(const QUrlQuery& query, QSet<qint64>* seenFileIds,
+              bool* anyHashMatch);
+  SubtitleResolution resolution(const QJsonObject& attributes,
+                                const QString& fileName) const;
+
+  QNetworkRequest apiRequest(const QString& path,
+                             const QUrlQuery& query = QUrlQuery()) const;
+  Response send(const QNetworkRequest& req, const QByteArray& verb,
+                const QByteArray& data = QByteArray());
+  QString errorFor(const Response& r) const;
 };
 
 #endif
