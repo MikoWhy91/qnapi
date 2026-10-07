@@ -1,0 +1,97 @@
+cmake_minimum_required(VERSION 3.16)
+
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/libqnapi/src/version.h" _qnapi_version_line
+     REGEX "^#define QNAPI_VERSION ")
+string(REGEX REPLACE "^#define QNAPI_VERSION \"([0-9.]+)\".*$" "\\1" QNAPI_VERSION "${_qnapi_version_line}")
+
+project(QNapi VERSION ${QNAPI_VERSION} LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+option(QNAPI_BUILD_GUI "Build the qnapi graphical application" ON)
+option(QNAPI_BUILD_CLI "Build the qnapic command-line application" ON)
+set(QNAPI_QT_MAJOR_VERSION "" CACHE STRING
+    "Qt major version to build with (5 or 6); empty prefers Qt 6")
+
+include(GNUInstallDirs)
+
+if(NOT QNAPI_QT_MAJOR_VERSION)
+  find_package(Qt6 QUIET COMPONENTS Core)
+  if(Qt6_FOUND)
+    set(QNAPI_QT_MAJOR_VERSION 6)
+  else()
+    set(QNAPI_QT_MAJOR_VERSION 5)
+  endif()
+endif()
+set(QT_VERSION_MAJOR ${QNAPI_QT_MAJOR_VERSION})
+set(QT Qt${QT_VERSION_MAJOR})
+
+if(QT_VERSION_MAJOR EQUAL 5)
+  set(QNAPI_QT_MIN_VERSION 5.15)
+else()
+  set(QNAPI_QT_MIN_VERSION 6.2)
+endif()
+
+set(_qt_components Core Network LinguistTools)
+if(QT_VERSION_MAJOR EQUAL 6)
+  list(APPEND _qt_components Core5Compat)
+endif()
+if(QNAPI_BUILD_GUI)
+  list(APPEND _qt_components Widgets)
+  if(APPLE)
+    list(APPEND _qt_components Xml)
+  endif()
+endif()
+find_package(${QT} ${QNAPI_QT_MIN_VERSION} REQUIRED COMPONENTS ${_qt_components})
+message(STATUS "Building QNapi ${PROJECT_VERSION} with Qt ${${QT}_VERSION}")
+
+if(MSVC)
+  add_compile_options(/W3 /utf-8)
+else()
+  add_compile_options(-Wall -Wextra)
+endif()
+
+# Everything lands in one directory so the GUI finds qnapic next to itself
+# when run from the build tree.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+if(WIN32)
+  if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    # win32/QNapi-setup.nsi packages win32/out
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/win32/out" CACHE PATH
+        "Install path prefix" FORCE)
+  endif()
+  set(QNAPI_INSTALL_BINDIR .)
+  set(QNAPI_INSTALL_DATADIR .)
+else()
+  set(QNAPI_INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
+  set(QNAPI_INSTALL_DATADIR ${CMAKE_INSTALL_DATADIR})
+endif()
+
+include(cmake/QNapiTranslations.cmake)
+
+add_subdirectory(libqnapi)
+if(QNAPI_BUILD_CLI)
+  add_subdirectory(cli)
+endif()
+if(QNAPI_BUILD_GUI)
+  add_subdirectory(gui)
+endif()
+
+include(cmake/QNapiInstall.cmake)
+
+find_package(Doxygen QUIET)
+if(DOXYGEN_FOUND)
+  add_custom_target(doxygen
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen"
+    COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMENT "Generating Doxygen documentation in doc/doxygen/index.html"
+    VERBATIM)
+endif()
