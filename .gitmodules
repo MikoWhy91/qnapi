@@ -1,6 +1,3 @@
-[submodule "deps/libmaia"]
-	path = deps/libmaia
-	url = https://github.com/wiedi/libmaia.git
 [submodule "deps/qt-maybe"]
 	path = deps/qt-maybe
 	url = https://github.com/QNapi/qt-maybe.git
