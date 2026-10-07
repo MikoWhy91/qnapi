@@ -14,12 +14,22 @@
 
 #include "tmplayer.h"
 
+#include <QRegularExpression>
+
+namespace {
+QRegularExpression lineRegExp() {
+  return QRegularExpression(
+      QRegularExpression::anchoredPattern(
+          "^(0\\d|\\d\\d):(0\\d|\\d\\d):(0\\d|\\d\\d):(.*)"),
+      QRegularExpression::DotMatchesEverythingOption |
+          QRegularExpression::UseUnicodePropertiesOption);
+}
+}  // namespace
+
 bool TMPlayerSubtitleFormat::detect(const QStringList &lines) const {
   foreach (QString line, lines) {
     if (!line.trimmed().isEmpty()) {
-      QRegExp r("^(0\\d|\\d\\d):(0\\d|\\d\\d):(0\\d|\\d\\d):(.*)");
-      r.setPatternSyntax(QRegExp::RegExp2);
-      return r.exactMatch(line);
+      return lineRegExp().match(line).hasMatch();
     }
   }
 
@@ -28,16 +38,16 @@ bool TMPlayerSubtitleFormat::detect(const QStringList &lines) const {
 
 SubFile TMPlayerSubtitleFormat::decode(const QStringList &lines) const {
   SubFile sf;
+  const QRegularExpression re = lineRegExp();
 
   foreach (QString line, lines) {
     if (!line.trimmed().isEmpty()) {
-      QRegExp r("^(0\\d|\\d\\d):(0\\d|\\d\\d):(0\\d|\\d\\d):(.*)");
-      r.setPatternSyntax(QRegExp::RegExp2);
-      if (r.exactMatch(line)) {
-        int h = r.cap(1).toInt();
-        int m = r.cap(2).toInt();
-        int s = r.cap(3).toInt();
-        QString tokenStream = r.cap(4);
+      QRegularExpressionMatch r = re.match(line);
+      if (r.hasMatch()) {
+        int h = r.captured(1).toInt();
+        int m = r.captured(2).toInt();
+        int s = r.captured(3).toInt();
+        QString tokenStream = r.captured(4);
 
         SubEntry se;
         se.frameStart = 1000L * (3600L * h + 60L * m + s);

@@ -22,7 +22,9 @@ QNapiApp::QNapiApp(int &argc, char **argv, const QString &appName)
     : QSingleApplication(argc, argv, appName),
       creationDT(QDateTime::currentDateTime()),
       enginesRegistry(LibQNapi::subtitleDownloadEngineRegistry()) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+#endif
 
   openDialog = 0;
 

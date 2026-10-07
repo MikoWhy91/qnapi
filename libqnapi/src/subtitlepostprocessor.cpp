@@ -16,8 +16,7 @@
 
 #include <QFile>
 #include <QFileInfo>
-#include <QTextCodec>
-#include <QTextStream>
+#include <QRegularExpression>
 
 SubtitlePostProcessor::SubtitlePostProcessor(
     const PostProcessingConfig& ppConfig,
@@ -66,12 +65,10 @@ bool SubtitlePostProcessor::ppReplaceDiacriticsWithASCII(
 
   QByteArray fileContent = f.readAll();
 
-  QString contentStr =
-      QTextCodec::codecForName(qPrintable(from))->toUnicode(fileContent);
+  QString contentStr = EncodingUtils::decode(fileContent, from);
   f.close();
 
-  fileContent.clear();
-  fileContent.append(encodingUtils.replaceDiacriticsWithASCII(contentStr));
+  fileContent = encodingUtils.replaceDiacriticsWithASCII(contentStr).toUtf8();
 
   if (!f.open(QIODevice::WriteOnly)) return false;
 
@@ -84,21 +81,22 @@ bool SubtitlePostProcessor::ppReplaceDiacriticsWithASCII(
 bool SubtitlePostProcessor::ppChangeSubtitlesEncoding(
     const QString& subtitleFilePath, const QString& from,
     const QString& to) const {
+  if (!EncodingUtils::isEncodingAvailable(from) ||
+      !EncodingUtils::isEncodingAvailable(to))
+    return false;
+
   QFile f(subtitleFilePath);
   if (!f.open(QIODevice::ReadOnly)) return false;
 
   QByteArray fileContent = f.readAll();
 
-  QString contentStr =
-      QTextCodec::codecForName(qPrintable(from))->toUnicode(fileContent);
+  QString contentStr = EncodingUtils::decode(fileContent, from);
   f.close();
 
   if (to.compare("UTF-8", Qt::CaseInsensitive) != 0) {
-    fileContent = QTextCodec::codecForName(qPrintable(to))
-                      ->fromUnicode(contentStr.constData(), contentStr.size());
+    fileContent = EncodingUtils::encode(contentStr, to);
   } else {
-    fileContent.clear();
-    fileContent.append(contentStr);
+    fileContent = contentStr.toUtf8();
   }
 
   if (!f.open(QIODevice::WriteOnly)) return false;
@@ -124,7 +122,8 @@ bool SubtitlePostProcessor::ppRemoveLinesContainingWords(
     const QString& subtitleFilePath, QStringList wordList) const {
   if (!QFileInfo(subtitleFilePath).exists()) return false;
 
-  wordList = wordList.filter(QRegExp("^(.+)$"));
+  wordList = wordList.filter(QRegularExpression(
+      "^(.+)$", QRegularExpression::DotMatchesEverythingOption));
 
   QString fromCodec = encodingUtils.detectFileEncoding(subtitleFilePath);
 
@@ -140,9 +139,7 @@ bool SubtitlePostProcessor::ppRemoveLinesContainingWords(
     int i;
     while ((i = line.indexOf('\r')) >= 0) line.remove(i, 1);
 
-    QTextStream ts(line);
-    ts.setCodec(qPrintable(fromCodec));
-    QString encLine = ts.readAll();
+    QString encLine = EncodingUtils::decodeText(line, fromCodec);
 
     if (encLine.isEmpty()) {
       out << line;

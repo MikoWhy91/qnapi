@@ -25,7 +25,7 @@ class frmNapiProjektConfig : public QDialog {
 
  public:
   frmNapiProjektConfig(const EngineConfig &config, QWidget *parent = 0,
-                       Qt::WindowFlags f = 0);
+                       Qt::WindowFlags f = {});
   ~frmNapiProjektConfig() {}
 
   EngineConfig getConfig() const;

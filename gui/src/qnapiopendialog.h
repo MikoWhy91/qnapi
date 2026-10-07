@@ -17,7 +17,8 @@
 
 #include "config/staticconfig.h"
 
-#include <QDesktopWidget>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>

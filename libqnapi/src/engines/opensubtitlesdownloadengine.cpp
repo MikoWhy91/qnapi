@@ -358,9 +358,8 @@ OpenSubtitlesDownloadEngine::Response OpenSubtitlesDownloadEngine::send(
     const QNetworkRequest& request, const QByteArray& verb,
     const QByteArray& data, int timeoutMs) {
   QNetworkRequest req(request);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-  req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-#endif
+  req.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                   QNetworkRequest::NoLessSafeRedirectPolicy);
 
   QNetworkReply* reply;
   if (verb == "POST") {

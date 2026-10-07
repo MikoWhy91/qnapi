@@ -20,8 +20,6 @@
 #include <QString>
 #include <QUrl>
 
-#include <ctime>
-
 #include <Maybe.h>
 
 #include "subtitleinfo.h"

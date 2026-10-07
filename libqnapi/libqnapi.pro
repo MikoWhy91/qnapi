@@ -1,4 +1,5 @@
 QT += network xml
+greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 QT -= gui
 
 TARGET = qnapi
@@ -7,7 +8,7 @@ TEMPLATE = lib
 CONFIG += staticlib \
           warn_on \
           silent \
-          c++11
+          c++17
 
 DESTDIR = $$PWD
 

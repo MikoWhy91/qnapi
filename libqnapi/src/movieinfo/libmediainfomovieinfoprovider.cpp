@@ -13,7 +13,7 @@
 *****************************************************************************/
 
 #include "libmediainfomovieinfoprovider.h"
-#include <QRegExp>
+#include <QRegularExpression>
 #include <string>
 
 #ifndef UNICODE
@@ -51,23 +51,26 @@ const Maybe<MovieInfo> LibmediainfoMovieInfoProvider::getMovieInfo(
 
   mi.Close();
 
-  QRegExp rWidth("(\\d+)");
-  if (rWidth.indexIn(widthS) == -1) return nothing();
+  const QRegularExpression rNumber("(\\d+)");
 
-  QRegExp rHeight("(\\d+)");
-  if (rHeight.indexIn(heightS) == -1) return nothing();
+  QRegularExpressionMatch width = rNumber.match(widthS);
+  if (!width.hasMatch()) return nothing();
 
-  QRegExp rFrameRate("(\\d+).(\\d+)");
-  if (rFrameRate.indexIn(frameRateS) == -1) return nothing();
-  long frFloor = rFrameRate.cap(1).toLong();
-  long frFrac = rFrameRate.cap(2).toLong();
+  QRegularExpressionMatch height = rNumber.match(heightS);
+  if (!height.hasMatch()) return nothing();
 
-  QRegExp rDuration("(\\d+)");
-  if (rDuration.indexIn(durationS) == -1) return nothing();
+  QRegularExpressionMatch frameRate =
+      QRegularExpression("(\\d+).(\\d+)").match(frameRateS);
+  if (!frameRate.hasMatch()) return nothing();
+  long frFloor = frameRate.captured(1).toLong();
+  long frFrac = frameRate.captured(2).toLong();
 
-  MovieInfo info(rWidth.cap(1).toInt(), rHeight.cap(1).toInt(),
+  QRegularExpressionMatch duration = rNumber.match(durationS);
+  if (!duration.hasMatch()) return nothing();
+
+  MovieInfo info(width.captured(1).toInt(), height.captured(1).toInt(),
                  (double)frFloor + (double)frFrac / 1000.0,
-                 rDuration.cap(1).toDouble() / 1000.0);
+                 duration.captured(1).toDouble() / 1000.0);
 
   return just<MovieInfo>(info);
 }
