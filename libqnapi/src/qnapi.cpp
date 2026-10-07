@@ -76,12 +76,14 @@ bool QNapi::lookForSubtitles(QString lang, QString engine) {
     foreach (QSharedPointer<SubtitleDownloadEngine> e, enginesList) {
       e->setMoviePath(movie);
       result = e->lookForSubtitles(lang) || result;
+      collectEngineError(e);
     }
   } else {
     QSharedPointer<SubtitleDownloadEngine> e = engineByName(engine);
     if (e) {
       e->setMoviePath(movie);
       result = e->lookForSubtitles(lang);
+      collectEngineError(e);
     }
   }
 
@@ -147,7 +149,9 @@ bool QNapi::download(int i) {
   SubtitleInfo s = subtitlesList[i];
   currentEngine = engineByName(s.engine);
   if (!currentEngine) return false;
-  return currentEngine->download(s.id);
+  bool result = currentEngine->download(s.id);
+  collectEngineError(currentEngine);
+  return result;
 }
 
 bool QNapi::unpack(int i) {
@@ -181,6 +185,19 @@ void QNapi::cleanup() {
 }
 
 QString QNapi::error() { return errorMsg; }
+
+QStringList QNapi::takeEngineErrors() {
+  QStringList errors = engineErrors;
+  engineErrors.clear();
+  return errors;
+}
+
+void QNapi::collectEngineError(
+    const QSharedPointer<SubtitleDownloadEngine>& e) {
+  QString engineError = e->lastError();
+  if (engineError.isEmpty()) return;
+  if (!engineErrors.contains(engineError)) engineErrors << engineError;
+}
 
 QStringList QNapi::listLoadedEngines() const {
   QStringList list;

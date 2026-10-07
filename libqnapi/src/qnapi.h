@@ -56,14 +56,18 @@ class QNapi {
 
   void cleanup();
   QString error();
+  // returns engine-reported errors collected since the last call, deduplicated
+  QStringList takeEngineErrors();
 
   QStringList listLoadedEngines() const;
 
  private:
   QSharedPointer<SubtitleDownloadEngine> engineByName(QString name) const;
+  void collectEngineError(const QSharedPointer<SubtitleDownloadEngine>& e);
 
   QString movie;
   QString errorMsg;
+  QStringList engineErrors;
   QList<QSharedPointer<SubtitleDownloadEngine>> enginesList;
   QList<SubtitleInfo> subtitlesList;
   QSharedPointer<SubtitleDownloadEngine> currentEngine;
