@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkProxy>
+#include <QSslSocket>
 #include <QTemporaryDir>
 #include <QTcpServer>
 #include <QtTest>
@@ -103,6 +104,17 @@ class TestOpenSubtitles : public QObject {
     QVERIFY(!second->lookForSubtitles("pl"));
     QVERIFY(second->lastError().isEmpty());
     QVERIFY(api.requests().isEmpty());
+  }
+
+  // CI sets QNAPI_TEST_REQUIRE_OPENSSL where it ships OpenSSL (Windows) to
+  // check that Qt can load those libraries
+  void openSslIsAvailable() {
+    if (qEnvironmentVariable("QNAPI_TEST_REQUIRE_OPENSSL") != "1") {
+      QSKIP("QNAPI_TEST_REQUIRE_OPENSSL is not set");
+    }
+    QVERIFY(QSslSocket::supportsSsl());
+    QVERIFY2(QSslSocket::sslLibraryVersionString().contains("OpenSSL"),
+             qPrintable(QSslSocket::sslLibraryVersionString()));
   }
 
   void search() {

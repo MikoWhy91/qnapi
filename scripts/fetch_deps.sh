@@ -73,8 +73,13 @@ case "$platform" in
     cp "$work/7z/License.txt" "$out/7-Zip-License.txt"
 
     fetch "$MEDIAINFO_URL/MediaInfo_DLL_${MEDIAINFO_VERSION}_Windows_x64_WithoutInstaller.zip"
-    unzip -oq "$work/MediaInfo_DLL_${MEDIAINFO_VERSION}_Windows_x64_WithoutInstaller.zip" \
-      MediaInfo.dll Developers/License.html -d "$work/mi"
+    if command -v unzip >/dev/null; then
+      unzip -oq "$work/MediaInfo_DLL_${MEDIAINFO_VERSION}_Windows_x64_WithoutInstaller.zip" \
+        MediaInfo.dll Developers/License.html -d "$work/mi"
+    else
+      "$unpacker" x -y "-o$work/mi" "$work/MediaInfo_DLL_${MEDIAINFO_VERSION}_Windows_x64_WithoutInstaller.zip" \
+        MediaInfo.dll Developers/License.html >/dev/null
+    fi
     cp "$work/mi/MediaInfo.dll" "$out/MediaInfo.dll"
     cp "$work/mi/Developers/License.html" "$out/MediaInfo-License.html"
     ;;

@@ -1,5 +1,7 @@
 # QNapi
 
+[![CI](https://github.com/MikoWhy91/qnapi/actions/workflows/ci.yml/badge.svg)](https://github.com/MikoWhy91/qnapi/actions/workflows/ci.yml)
+
 QNapi is free software for automatic fetching subtitles for given movie file.
 It uses online databases such as NapiProjekt, OpenSubtitles.com and Napisy24.
 It is based on Qt5 library, so it can be launched on any supported operating

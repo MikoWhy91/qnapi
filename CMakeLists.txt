@@ -55,10 +55,11 @@ endif()
 find_package(${QT} ${QNAPI_QT_MIN_VERSION} REQUIRED COMPONENTS ${_qt_components})
 message(STATUS "Building QNapi ${PROJECT_VERSION} with Qt ${${QT}_VERSION}")
 
+# not for the resource compiler, which builds win32/qnapi.rc
 if(MSVC)
-  add_compile_options(/W3 /utf-8)
+  add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/W3;/utf-8>")
 else()
-  add_compile_options(-Wall -Wextra)
+  add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra>")
 endif()
 
 # Everything lands in one directory so the GUI finds qnapic next to itself
