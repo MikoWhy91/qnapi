@@ -36,7 +36,7 @@ compiled **libmediainfo** libraries are provided for Windows/OSX in
 
 First, you have to clone project source code using git client:
 
-`$ git clone --recursive https://github.com/QNapi/qnapi.git`
+`$ git clone https://github.com/MikoWhy91/qnapi.git`
 
 #### Compiling
 
