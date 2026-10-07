@@ -158,7 +158,7 @@ bool QNapi::download(int i) {
   currentEngine = engineByName(s.engine);
   if (!currentEngine) return false;
   bool result = currentEngine->download(s.id);
-  collectEngineError(currentEngine, engineErrors);
+  collectEngineError(currentEngine, result ? engineNotices : engineErrors);
   return result;
 }
 
@@ -199,6 +199,12 @@ QStringList QNapi::takeEngineErrors() {
   QStringList errors = engineErrors;
   engineErrors.clear();
   return errors;
+}
+
+QStringList QNapi::takeEngineNotices() {
+  QStringList notices = engineNotices;
+  engineNotices.clear();
+  return notices;
 }
 
 bool QNapi::hasAnySubtitles() const {

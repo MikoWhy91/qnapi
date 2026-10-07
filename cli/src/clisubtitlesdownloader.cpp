@@ -154,6 +154,9 @@ void printEngineErrors(const Console& c, QNapi& napi) {
   foreach (QString engineError, napi.takeEngineErrors()) {
     c.printLineError(engineError);
   }
+  foreach (QString engineNotice, napi.takeEngineNotices()) {
+    c.printLineOrdinary(engineNotice);
+  }
 }
 
 int finishSubtitles(int selIdx, const Console& c, QNapi& napi) {

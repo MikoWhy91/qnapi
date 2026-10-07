@@ -60,6 +60,8 @@ class QNapi {
   QString error();
   // returns engine-reported errors collected since the last call, deduplicated
   QStringList takeEngineErrors();
+  // informational engine messages after a successful download
+  QStringList takeEngineNotices();
   // true if any engine has results, including ones marked SUBTITLE_BAD
   bool hasAnySubtitles() const;
 
@@ -75,6 +77,7 @@ class QNapi {
   QString movie;
   QString errorMsg;
   QStringList engineErrors;
+  QStringList engineNotices;
   QList<QSharedPointer<SubtitleDownloadEngine>> enginesList;
   QList<SubtitleInfo> subtitlesList;
   QSharedPointer<SubtitleDownloadEngine> currentEngine;

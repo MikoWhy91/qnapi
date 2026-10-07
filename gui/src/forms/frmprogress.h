@@ -65,6 +65,7 @@ class GetThread : public QNapiThread {
   int napiSuccess, napiFail;
   QString criticalMessage;
   QStringList engineErrors;
+  QStringList engineNotices;
   QMutex waitForDlg;
   int selIdx;
   QNapiConfig config;
