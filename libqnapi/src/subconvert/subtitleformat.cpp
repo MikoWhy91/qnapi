@@ -14,6 +14,7 @@
 
 #include "subtitleformat.h"
 #include <QMap>
+#include <QRegularExpression>
 
 QVector<SubToken> SubtitleFormat::decodeTokenStream(QString tokenStream) const {
   QVector<SubToken> tokens;
@@ -50,23 +51,25 @@ QVector<SubToken> SubtitleFormat::decodeTokenStream(QString tokenStream) const {
     }
 
     if (!matched) {
-      QRegExp colorR1("^\\{c:(.*)\\}");
-      colorR1.setPatternSyntax(QRegExp::RegExp2);
-      colorR1.setCaseSensitivity(Qt::CaseInsensitive);
+      const QRegularExpression::PatternOptions colorOptions =
+          QRegularExpression::DotMatchesEverythingOption |
+          QRegularExpression::UseUnicodePropertiesOption;
+      // only the {c:...} form has always been matched case-insensitively
+      const QRegularExpression colorR1(
+          "^\\{c:(.*)\\}",
+          colorOptions | QRegularExpression::CaseInsensitiveOption);
+      const QRegularExpression colorR2("^<font color=(.*)>", colorOptions);
 
-      QRegExp colorR2("^<font color=(.*)>");
-      colorR1.setPatternSyntax(QRegExp::RegExp2);
-      colorR1.setCaseSensitivity(Qt::CaseInsensitive);
-
-      if (colorR1.indexIn(tokenStream) == 0) {
+      QRegularExpressionMatch colorMatch;
+      if ((colorMatch = colorR1.match(tokenStream)).hasMatch()) {
         tok.type = STT_FONTCOLOR;
-        tok.payload = parseColor(colorR1.cap(1));
-        tokenStream.remove(0, colorR1.cap(0).size());
+        tok.payload = parseColor(colorMatch.captured(1));
+        tokenStream.remove(0, colorMatch.capturedLength(0));
         matched = true;
-      } else if (colorR2.indexIn(tokenStream) == 0) {
+      } else if ((colorMatch = colorR2.match(tokenStream)).hasMatch()) {
         tok.type = STT_FONTCOLOR;
-        tok.payload = parseColor(colorR2.cap(1));
-        tokenStream.remove(0, colorR2.cap(0).size());
+        tok.payload = parseColor(colorMatch.captured(1));
+        tokenStream.remove(0, colorMatch.capturedLength(0));
         matched = true;
       } else if (tokenStream[0] == '/' && wordBuff.isEmpty()) {
         tok.type = STT_ITALIC;

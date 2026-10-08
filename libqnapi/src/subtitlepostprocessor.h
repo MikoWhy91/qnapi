@@ -40,7 +40,7 @@ class SubtitlePostProcessor {
   bool ppRemoveLinesContainingWords(const QString& subtitleFilePath,
                                     QStringList wordList) const;
 
-  const PostProcessingConfig& ppConfig;
+  const PostProcessingConfig ppConfig;
   QSharedPointer<const SubtitleConverter> subtitleConverter;
   EncodingUtils encodingUtils;
 };

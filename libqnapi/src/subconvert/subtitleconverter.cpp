@@ -184,8 +184,8 @@ QStringList SubtitleConverter::readFile(const QString &filename,
   long current = 0;
   QFile inputFile(filename);
   if (inputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QTextStream in(&inputFile);
-    in.setCodec(qPrintable(encoding));
+    QString content = EncodingUtils::decodeText(inputFile.readAll(), encoding);
+    QTextStream in(&content, QIODevice::ReadOnly);
     while (!in.atEnd() && (atMostLines == 0 || current < atMostLines)) {
       buff += in.readLine();
       ++current;
@@ -199,9 +199,11 @@ bool SubtitleConverter::writeFile(const QString &filename, QString encoding,
                                   const QStringList &lines) const {
   QFile outputFile(filename);
   if (outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&outputFile);
-    out.setCodec(qPrintable(encoding));
-    foreach (QString line, lines) { out << line << "\n"; }
+    QString content;
+    foreach (QString line, lines) {
+      content += line + "\n";
+    }
+    outputFile.write(EncodingUtils::encodeText(content, encoding));
     outputFile.close();
     return true;
   } else {

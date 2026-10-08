@@ -23,7 +23,8 @@ frmAbout::frmAbout(QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f) {
   ui.lbQtVersion->setText(QString("Qt version: ") + qVersion());
 
   QRect position = frameGeometry();
-  position.moveCenter(QDesktopWidget().availableGeometry().center());
+  position.moveCenter(
+      QGuiApplication::primaryScreen()->availableGeometry().center());
   move(position.topLeft());
 
   ui.lbQNapiIcon->setPixmap(QIcon(":/icon/qnapi.png").pixmap(64));

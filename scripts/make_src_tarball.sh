@@ -1,20 +1,18 @@
 #!/bin/sh
+# Creates ../qnapi-$VERSION.tar.gz from the committed sources, without the
+# prebuilt third-party binaries. VERSION defaults to the one in version.h.
 
-make distclean
-export DST_DIR=../qnapi-$VERSION
-mkdir $DST_DIR
-cp -rv * $DST_DIR
-find $DST_DIR | grep .git | xargs rm -fr
-rm -fr $DST_DIR/deps/libmediainfo
-rm -fr $DST_DIR/win32/content/7za.exe
-rm -fr $DST_DIR/macx/content/7za
-rm -fr $DST_DIR/macx/QNapi*app
-rm -fr $DST_DIR/macx/QNapi*dmg
-rm -fr $DST_DIR/libqnapi/tmp
-rm -fr $DST_DIR/gui/tmp
-rm -fr $DST_DIR/tmp
-rm -fr $DST_DIR/qnapi
-rm -fr $DST_DIR/QNapi*.AppImage
-tar -zcvf qnapi-$VERSION.tar.gz $DST_DIR
-rm -fr $DST_DIR
+set -e
 
+cd "$(dirname "$0")/.."
+VERSION=${VERSION:-$(sh scripts/version.sh)}
+DST_DIR=qnapi-$VERSION
+TMP_DIR=$(mktemp -d)
+
+git archive --format=tar --prefix="$DST_DIR/" HEAD | tar -x -C "$TMP_DIR"
+rm -rf "$TMP_DIR/$DST_DIR/deps/libmediainfo/bin" \
+       "$TMP_DIR/$DST_DIR/deps/libmediainfo/lib" \
+       "$TMP_DIR/$DST_DIR/win32/content/7za.exe" \
+       "$TMP_DIR/$DST_DIR/macx/content/7za"
+tar -C "$TMP_DIR" -zcvf "../$DST_DIR.tar.gz" "$DST_DIR"
+rm -rf "$TMP_DIR"

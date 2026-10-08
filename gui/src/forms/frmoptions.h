@@ -22,19 +22,19 @@
 #include "engines/subtitledownloadenginesregistry.h"
 #include "subconvert/subtitleformatsregistry.h"
 
-#include <QDesktopWidget>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QList>
 #include <QMessageBox>
 #include <QSharedPointer>
-#include <QTextCodec>
 
 class frmOptions : public QDialog {
   Q_OBJECT
  public:
-  frmOptions(QWidget *parent = 0, Qt::WindowFlags f = 0);
+  frmOptions(QWidget *parent = 0, Qt::WindowFlags f = {});
   ~frmOptions();
 
  public slots:

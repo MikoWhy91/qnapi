@@ -27,6 +27,19 @@ class EncodingUtils {
   QString detectBufferEncoding(const QByteArray& buffer) const;
   QString detectFileEncoding(const QString& filename) const;
 
+  static bool isEncodingAvailable(const QString& encoding);
+  static QStringList availableEncodings();
+
+  // plain conversion with the named encoding; decode() drops a leading BOM
+  static QString decode(const QByteArray& data, const QString& encoding);
+  static QByteArray encode(const QString& text, const QString& encoding);
+
+  // conversion as done by QTextStream: a Unicode BOM in the data overrides
+  // the encoding, no BOM is written, unknown encodings fall back to the
+  // locale encoding
+  static QString decodeText(const QByteArray& data, const QString& encoding);
+  static QByteArray encodeText(const QString& text, const QString& encoding);
+
  private:
   QString diacritics;
   QStringList replacements;

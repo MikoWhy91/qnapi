@@ -3,6 +3,7 @@ qnapi (0.2.4-1) UNRELEASED; urgency=medium
   * Package the maintained fork from https://github.com/MikoWhy91/qnapi,
     based on the original QNapi by Piotr Krzemiński
   * OpenSubtitles engine uses the opensubtitles.com REST API
+  * Build with CMake and Qt 6
 
  -- Mikołaj Stańczak <6730023+MikoWhy91@users.noreply.github.com>  Wed, 07 Oct 2026 21:00:00 +0000
 

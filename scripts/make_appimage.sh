@@ -1,21 +1,43 @@
 #!/bin/sh
+# Builds a QNapi AppImage from a CMake build directory configured with
+# -DCMAKE_INSTALL_PREFIX=/usr (BUILD_DIR, default: build).
+# Needs a 7-Zip binary (p7zip-full or 7zip) and network access to fetch
+# linuxdeploy. Set QMAKE to the qmake of the Qt the build used if it is not
+# the first qmake in PATH (e.g. QMAKE=qmake6).
 
-make INSTALL_ROOT=appdir install
-find appdir
+set -e
 
-wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-chmod a+x linuxdeployqt*.AppImage
-unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+BUILD_DIR=${BUILD_DIR:-build}
+APPDIR=${APPDIR:-AppDir}
+ARCH=${ARCH:-$(uname -m)}
 
-./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs
-sudo apt-get install -qq p7zip-full
-cp -v /usr/lib/p7zip/7za ./appdir/usr/bin/7za
-./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage
+rm -rf "$APPDIR"
+DESTDIR="$APPDIR" cmake --install "$BUILD_DIR"
 
-find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+# distributions install /usr/bin/7za as a shell wrapper around the binary
+for P7ZIP in /usr/lib/7zip/7za /usr/lib/p7zip/7za "$(command -v 7zz)" "$(command -v 7za)"; do
+  [ -x "$P7ZIP" ] && head -c 4 "$P7ZIP" | grep -q ELF && break
+done
+cp -v "$P7ZIP" "$APPDIR/usr/bin/7za"
 
-find QNapi*
+for tool in linuxdeploy linuxdeploy-plugin-qt; do
+  if [ ! -x "$tool-$ARCH.AppImage" ]; then
+    wget -c "https://github.com/linuxdeploy/$tool/releases/download/continuous/$tool-$ARCH.AppImage"
+    chmod a+x "$tool-$ARCH.AppImage"
+  fi
+done
 
-rm -fr linuxdeployqt*.AppImage
-rm -fr appdir
+unset QTDIR QT_PLUGIN_PATH LD_LIBRARY_PATH
+# lets the tools run without FUSE (containers, CI)
+export APPIMAGE_EXTRACT_AND_RUN=1
 
+"./linuxdeploy-$ARCH.AppImage" \
+  --appdir "$APPDIR" \
+  --executable "$APPDIR/usr/bin/qnapic" \
+  --executable "$APPDIR/usr/bin/7za" \
+  --desktop-file "$APPDIR/usr/share/applications/qnapi.desktop" \
+  --icon-file "$APPDIR/usr/share/icons/hicolor/512x512/apps/qnapi.png" \
+  --plugin qt \
+  --output appimage
+
+ls -la QNapi*.AppImage

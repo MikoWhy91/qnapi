@@ -15,8 +15,10 @@
 #include "encodingutils.h"
 
 #include <QFile>
+#include <QScopedPointer>
 #include <QTextCodec>
-#include <QTextStream>
+
+#include <algorithm>
 
 EncodingUtils::EncodingUtils() {
   diacritics = QString::fromUtf8(
@@ -142,9 +144,7 @@ QString EncodingUtils::detectBufferEncoding(const QByteArray &buffer) const {
   QString from;
 
   foreach (QString codec, codecs) {
-    QTextCodec *tc = QTextCodec::codecForName(qPrintable(codec));
-
-    const QString text = tc->toUnicode(buffer.constData(), buffer.size());
+    const QString text = decode(buffer, codec);
 
     QStringList chars = QString::fromUtf8("ą/ś/ż/ć/ń/ł/ó/ę").split("/");
 
@@ -173,4 +173,55 @@ QString EncodingUtils::detectFileEncoding(const QString &filename) const {
     return enc;
   }
   return "";
+}
+
+namespace {
+QTextCodec *codecFor(const QString &encoding) {
+  if (encoding.isEmpty()) return nullptr;
+  return QTextCodec::codecForName(encoding.toLatin1());
+}
+}  // namespace
+
+bool EncodingUtils::isEncodingAvailable(const QString &encoding) {
+  return codecFor(encoding) != nullptr;
+}
+
+QStringList EncodingUtils::availableEncodings() {
+  QList<QByteArray> codecNames = QTextCodec::availableCodecs();
+  std::sort(codecNames.begin(), codecNames.end());
+  QStringList encodings;
+  for (const QByteArray &name : codecNames) {
+    encodings << QString::fromLatin1(name);
+  }
+  return encodings;
+}
+
+QString EncodingUtils::decode(const QByteArray &data, const QString &encoding) {
+  QTextCodec *codec = codecFor(encoding);
+  if (!codec) return QString();
+  QString text = codec->toUnicode(data);
+  // a byte order mark must not survive a change of encoding (upstream #200)
+  if (text.startsWith(QChar(0xFEFF))) text.remove(0, 1);
+  return text;
+}
+
+QByteArray EncodingUtils::encode(const QString &text, const QString &encoding) {
+  QTextCodec *codec = codecFor(encoding);
+  return codec ? codec->fromUnicode(text) : QByteArray();
+}
+
+QString EncodingUtils::decodeText(const QByteArray &data,
+                                  const QString &encoding) {
+  QTextCodec *codec = codecFor(encoding);
+  if (!codec) codec = QTextCodec::codecForLocale();
+  return QTextCodec::codecForUtfText(data, codec)->toUnicode(data);
+}
+
+QByteArray EncodingUtils::encodeText(const QString &text,
+                                     const QString &encoding) {
+  QTextCodec *codec = codecFor(encoding);
+  if (!codec) codec = QTextCodec::codecForLocale();
+  QScopedPointer<QTextEncoder> encoder(
+      codec->makeEncoder(QTextCodec::IgnoreHeader));
+  return encoder->fromUnicode(text);
 }

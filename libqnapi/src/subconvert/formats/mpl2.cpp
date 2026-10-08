@@ -14,12 +14,21 @@
 
 #include "mpl2.h"
 
+#include <QRegularExpression>
+
+namespace {
+QRegularExpression lineRegExp() {
+  return QRegularExpression(
+      QRegularExpression::anchoredPattern("^\\[(\\d+)\\]\\[(\\d+)\\](.*)"),
+      QRegularExpression::DotMatchesEverythingOption |
+          QRegularExpression::UseUnicodePropertiesOption);
+}
+}  // namespace
+
 bool MPL2SubtitleFormat::detect(const QStringList &lines) const {
   foreach (QString line, lines) {
     if (!line.trimmed().isEmpty()) {
-      QRegExp r("^\\[(\\d+)\\]\\[(\\d+)\\](.*)");
-      r.setPatternSyntax(QRegExp::RegExp2);
-      return r.exactMatch(line);
+      return lineRegExp().match(line).hasMatch();
     }
   }
 
@@ -28,16 +37,16 @@ bool MPL2SubtitleFormat::detect(const QStringList &lines) const {
 
 SubFile MPL2SubtitleFormat::decode(const QStringList &lines) const {
   SubFile sf;
+  const QRegularExpression re = lineRegExp();
 
   foreach (QString line, lines) {
     if (!line.trimmed().isEmpty()) {
-      QRegExp r("^\\[(\\d+)\\]\\[(\\d+)\\](.*)");
-      r.setPatternSyntax(QRegExp::RegExp2);
-      if (r.exactMatch(line)) {
+      QRegularExpressionMatch r = re.match(line);
+      if (r.hasMatch()) {
         SubEntry se;
-        se.frameStart = 100L * r.cap(1).toLong();
-        se.frameStop = 100L * r.cap(2).toLong();
-        QString tokenStream = r.cap(3);
+        se.frameStart = 100L * r.captured(1).toLong();
+        se.frameStop = 100L * r.captured(2).toLong();
+        QString tokenStream = r.captured(3);
 
         se.tokens = decodeTokenStream(tokenStream);
 

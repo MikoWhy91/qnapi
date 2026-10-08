@@ -15,6 +15,7 @@
 #include "p7zipdecoder.h"
 
 #include <QProcess>
+#include <QRegularExpression>
 
 P7ZipDecoder::P7ZipDecoder(const QString& p7zipPath, int operationTimeoutMsecs)
     : p7zipPath(p7zipPath), operationTimeoutMsecs(operationTimeoutMsecs) {}
@@ -23,18 +24,15 @@ QStringList P7ZipDecoder::listArchiveFiles(const QString& archivePath) const {
   QString stdoutBuff = readP7ZipOutput({"l", "-slt", archivePath});
 
 #ifdef Q_OS_WIN
-  QRegExp r("\r\nPath = ([^\r\n]*)\r\n");
+  const QRegularExpression r("\r\nPath = ([^\r\n]*)\r\n");
 #else
-  QRegExp r("\nPath = ([^\n]*)\n");
+  const QRegularExpression r("\nPath = ([^\n]*)\n");
 #endif
-  r.setPatternSyntax(QRegExp::RegExp2);
 
   QStringList files;
-  int offset = 0;
-
-  while ((offset = r.indexIn(stdoutBuff, offset)) != -1) {
-    files << r.cap(1);
-    offset += r.matchedLength();
+  QRegularExpressionMatchIterator it = r.globalMatch(stdoutBuff);
+  while (it.hasNext()) {
+    files << it.next().captured(1);
   }
 
   return files;

@@ -102,7 +102,8 @@ bool QNapiOpenDialog::selectDirectory() {
 #else
   if (!placeWindow()) return false;
   // QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks ?
-  setFileMode(QFileDialog::DirectoryOnly);
+  setFileMode(QFileDialog::Directory);
+  setOption(QFileDialog::ShowDirsOnly, true);
   return exec();
 #endif
 }
@@ -118,7 +119,8 @@ bool QNapiOpenDialog::placeWindow() {
   }
 
   QRect position = frameGeometry();
-  position.moveCenter(QDesktopWidget().availableGeometry().center());
+  position.moveCenter(
+      QGuiApplication::primaryScreen()->availableGeometry().center());
   move(position.topLeft());
 
   return true;

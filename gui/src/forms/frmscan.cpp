@@ -57,7 +57,8 @@ frmScan::frmScan(QWidget *parent, Qt::WindowFlags f)
   iconFilm = QIcon(":/ui/film.png");
 
   QRect position = frameGeometry();
-  position.moveCenter(QDesktopWidget().availableGeometry().center());
+  position.moveCenter(
+      QGuiApplication::primaryScreen()->availableGeometry().center());
   move(position.topLeft());
 }
 

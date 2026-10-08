@@ -1,0 +1,216 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux (Qt ${{ matrix.qt }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # oldest supported Qt 6; the AppImage built here runs on older
+          # distributions than one built on 24.04 would
+          - os: ubuntu-22.04
+            qt: 6
+            packages: qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libqt6core5compat6-dev qt6-qpa-plugins libgl-dev p7zip-full
+            package: true
+          - os: ubuntu-24.04
+            qt: 5
+            packages: qtbase5-dev qttools5-dev qttools5-dev-tools 7zip
+            package: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build g++ pkg-config libmediainfo-dev zlib1g-dev file \
+            ${{ matrix.packages }}
+
+      - name: Configure
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_INSTALL_PREFIX=/usr
+          -DQNAPI_QT_MAJOR_VERSION=${{ matrix.qt }}
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Smoke test
+        run: |
+          build/bin/qnapic --help
+          QT_QPA_PLATFORM=offscreen timeout 5 build/bin/qnapi --help || [ $? -eq 124 ]
+
+      - name: Build AppImage
+        if: matrix.package
+        run: |
+          QMAKE=$(command -v qmake6 || echo /usr/lib/qt6/bin/qmake) BUILD_DIR=build sh scripts/make_appimage.sh
+          mv QNapi*.AppImage "QNapi-$(sh scripts/version.sh)-x86_64.AppImage"
+
+      - name: Build Debian package
+        if: matrix.package
+        run: |
+          sudo apt-get install -y --no-install-recommends debhelper dpkg-dev fakeroot
+          dpkg-buildpackage -us -uc -b
+          mkdir deb && mv ../qnapi_*.deb deb/
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.package
+        with:
+          name: qnapi-linux-x86_64
+          path: |
+            QNapi-*.AppImage
+            deb/*.deb
+          if-no-files-found: error
+
+  macos:
+    name: macOS (Qt 6.8)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.*'
+          modules: qt5compat
+          cache: true
+
+      - name: Install tools
+        run: brew install ninja
+
+      - name: Fetch 7-Zip and MediaInfo
+        run: scripts/fetch_deps.sh macos
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR"
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Smoke test
+        run: |
+          build/bin/qnapic --help
+          build/bin/QNapi.app/Contents/Resources/7za i > /dev/null
+          test -f build/bin/QNapi.app/Contents/MacOS/libmediainfo.0.dylib
+
+      - name: Deploy Qt and create the disk image
+        run: |
+          cmake --build build --target macdeploy
+          npm install -g appdmg && cmake --build build --target appdmg || {
+            echo "appdmg failed, creating a plain disk image instead"
+            hdiutil create -volname QNapi -srcfolder build/bin/QNapi.app -ov -format UDZO build/QNapi.dmg
+          }
+          mv build/QNapi.dmg "QNapi-$(sh scripts/version.sh)-macos.dmg"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qnapi-macos
+          path: QNapi-*.dmg
+          if-no-files-found: error
+
+  windows:
+    name: Windows (Qt 6.8, MSVC)
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.*'
+          arch: win64_msvc2022_64
+          modules: qt5compat
+          tools: tools_opensslv3_x64
+          cache: true
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Fetch 7-Zip and MediaInfo
+        shell: bash
+        run: scripts/fetch_deps.sh windows
+
+      - name: Locate OpenSSL
+        shell: pwsh
+        run: |
+          $ssl = Get-ChildItem -Path $env:IQTA_TOOLS -Recurse -Filter libssl-3-x64.dll -ErrorAction SilentlyContinue |
+            Where-Object { $_.DirectoryName -match 'bin' } | Select-Object -First 1
+          if (-not $ssl) { throw "OpenSSL 3 DLLs not found under $env:IQTA_TOOLS" }
+          "OPENSSL_BIN_DIR=$($ssl.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "OpenSSL: $($ssl.DirectoryName)"
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:OPENSSL_BIN_DIR;$env:PATH"
+          $env:QNAPI_TEST_REQUIRE_OPENSSL = "1"
+          ctest --test-dir build --output-on-failure
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Check the installed files
+        shell: pwsh
+        run: |
+          $missing = @('qnapi.exe', 'qnapic.exe', '7za.exe', 'MediaInfo.dll',
+                       'libssl-3-x64.dll', 'libcrypto-3-x64.dll', 'Qt6Core.dll',
+                       'Qt6Network.dll', 'Qt6Widgets.dll', 'Qt6Core5Compat.dll',
+                       'platforms\qwindows.dll', 'tls\qopensslbackend.dll',
+                       '7-Zip-License.txt', 'LICENSE') |
+            Where-Object { -not (Test-Path "win32\out\$_") }
+          if ($missing) { throw "missing from win32\out: $($missing -join ', ')" }
+          & win32\out\qnapic.exe --help
+          if ($LASTEXITCODE -ne 0) { throw "qnapic --help failed" }
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = (Select-String -Path libqnapi\src\version.h -Pattern 'QNAPI_DISPLAYABLE_VERSION "(.*)"').Matches[0].Groups[1].Value
+          if (-not (Get-Command makensis -ErrorAction SilentlyContinue)) {
+            if (Test-Path "${env:ProgramFiles(x86)}\NSIS\makensis.exe") {
+              $env:PATH = "${env:ProgramFiles(x86)}\NSIS;$env:PATH"
+            } else {
+              choco install nsis -y --no-progress
+              $env:PATH = "${env:ProgramFiles(x86)}\NSIS;$env:PATH"
+            }
+          }
+          makensis /DAPPVER=$version win32\QNapi-setup.nsi
+          if ($LASTEXITCODE -ne 0) { throw "makensis failed" }
+          "QNAPI_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qnapi-windows-x64
+          path: win32/out/
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qnapi-windows-x64-installer
+          path: win32/QNapi-*-setup.exe
+          if-no-files-found: error

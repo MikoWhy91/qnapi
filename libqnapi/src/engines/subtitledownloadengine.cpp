@@ -16,7 +16,10 @@
 #include <QDir>
 #include <QFlags>
 #include <QLoggingCategory>
+#include <QRandomGenerator>
 #include "subconvert/subtitleformatsregistry.h"
+
+#include <cstdlib>
 
 SubtitleDownloadEngine::SubtitleDownloadEngine(const QString& tmpPath)
     : tmpPath(tmpPath) {
@@ -51,12 +54,8 @@ void SubtitleDownloadEngine::updateSubtitleInfo(const SubtitleInfo& si) {
 }
 
 QString SubtitleDownloadEngine::generateTmpFileName() const {
-  static bool gen_inited;
-  if (!gen_inited) {
-    qsrand(time(0));
-    gen_inited = true;
-  }
-  return QString("QNapi.%1.tmp").arg(qrand());
+  return QString("QNapi.%1.tmp")
+      .arg(QRandomGenerator::global()->bounded(RAND_MAX));
 }
 
 QString SubtitleDownloadEngine::generateTmpPath() const {

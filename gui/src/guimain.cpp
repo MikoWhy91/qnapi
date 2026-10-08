@@ -19,6 +19,7 @@
 #include <QLibraryInfo>
 #include <QMessageBox>
 #include <QProcess>
+#include <QRegularExpression>
 #include <iostream>
 #include "config/qnapiconfig.h"
 #include "libqnapi.h"
@@ -143,13 +144,11 @@ Maybe<QString> cliExecutablePath() {
 
 #ifndef Q_OS_WIN
   searchPaths << QProcess::systemEnvironment()
-                     .filter(QRegExp("^PATH=(.*)$"))
+                     .filter(QRegularExpression("^PATH="))
                      .value(0)
                      .mid(5)
                      .split(":")
-              << "/bin"
-              << "/usr/bin"
-              << "/usr/local/bin";
+              << "/bin" << "/usr/bin" << "/usr/local/bin";
   searchPaths.removeAll("");
 #endif
 
@@ -184,12 +183,17 @@ void installTranslation(QCoreApplication &app, QTranslator *qtTranslator,
                         QTranslator *translator, const QNapiConfig &config) {
   QString uiLanguage = LibQNapi::uiLanguage(config.generalConfig());
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  QString resourceDir = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
+#else
   QString resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+#endif
 
-  qtTranslator->load("qt_" + uiLanguage, resourceDir);
+  // a missing translation just leaves the UI in English
+  (void)qtTranslator->load("qt_" + uiLanguage, resourceDir);
   app.installTranslator(qtTranslator);
 
-  translator->load("qnapi_" + uiLanguage, ":/translations");
+  (void)translator->load("qnapi_" + uiLanguage, ":/translations");
   app.installTranslator(translator);
 }
 

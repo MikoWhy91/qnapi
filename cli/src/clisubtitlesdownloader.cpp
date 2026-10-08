@@ -21,17 +21,6 @@
 
 namespace CliSubtitlesDownloader {
 
-enum ExitCode {
-  EC_OK = 0,
-  EC_P7ZIP_UNAVAILABLE = 2,
-  EC_CANNOT_WRITE_TMP_DIR = 3,
-  EC_NO_WRITE_PERMISSIONS = 5,
-  EC_SUBTITLES_NOT_FOUND = 6,
-  EC_COULD_NOT_DOWNLOAD = 7,
-  EC_COULD_NOT_UNARCHIVE = 8,
-  EC_COULD_NOT_MATCH = 9
-};
-
 int configChecks(const Console& c, const QNapiConfig& config) {
   QString p7zipPath = config.generalConfig().p7zipPath();
   if (!QFileInfo(p7zipPath).isExecutable()) {

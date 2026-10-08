@@ -25,6 +25,7 @@
 #include "forms/frmopensubtitlesconfig.h"
 
 #include "libqnapi.h"
+#include "utils/encodingutils.h"
 
 #include <QLocale>
 
@@ -112,7 +113,8 @@ frmOptions::frmOptions(QWidget *parent, Qt::WindowFlags f)
   }
 
   QRect position = frameGeometry();
-  position.moveCenter(QDesktopWidget().availableGeometry().center());
+  position.moveCenter(
+      QGuiApplication::primaryScreen()->availableGeometry().center());
   move(position.topLeft());
 }
 
@@ -314,12 +316,9 @@ void frmOptions::showAllEncodings() {
   ui.cbEncFrom->clear();
   ui.cbEncTo->clear();
 
-  QList<QByteArray> codecs = QTextCodec::availableCodecs();
-  qSort(codecs.begin(), codecs.end());
-  for (QList<QByteArray>::iterator i = codecs.begin(); i != codecs.end(); i++) {
-    ui.cbEncFrom->addItem(*i);
-    ui.cbEncTo->addItem(*i);
-  }
+  const QStringList encodings = EncodingUtils::availableEncodings();
+  ui.cbEncFrom->addItems(encodings);
+  ui.cbEncTo->addItems(encodings);
 }
 
 void frmOptions::writeConfig() {

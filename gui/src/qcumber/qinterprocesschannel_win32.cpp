@@ -88,7 +88,7 @@ void QInterProcessChannel::sendMessage(const QString& s) {
     \brief Send a message to server instance
 */
 void QInterProcessChannel::sendMessage(const QByteArray& msg) {
-  if (msg.count()) {
+  if (msg.size()) {
     // a lot of simultaneous clients cause that pipe sometimes omits
     // some of these clients despite results of writing functions are ok ;/
     // workaround: reserve mutex, wait 100ms before every write operation
