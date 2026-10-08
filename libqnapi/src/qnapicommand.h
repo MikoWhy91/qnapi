@@ -42,6 +42,8 @@ struct ShowOptions {};
 
 struct ShowHelp {};
 
+struct ShowVersion {};
+
 struct ShowHelpLanguages {};
 
 }  // namespace QNapiCommand
@@ -53,6 +55,7 @@ Q_DECLARE_METATYPE(QNapiCommand::ScanDirectory)
 // Q_DECLARE_METATYPE(QNapiGuiCommand::ConvertSubtitles)
 Q_DECLARE_METATYPE(QNapiCommand::ShowOptions)
 Q_DECLARE_METATYPE(QNapiCommand::ShowHelp)
+Q_DECLARE_METATYPE(QNapiCommand::ShowVersion)
 Q_DECLARE_METATYPE(QNapiCommand::ShowHelpLanguages)
 
 #endif  // QNAPICOMMAND_H

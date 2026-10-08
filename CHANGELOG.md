@@ -34,6 +34,7 @@ engine (create a consumer named **QNapi** under Profile → API consumers).
 - CMake cache variable `QNAPI_DISPLAYABLE_VERSION` so prerelease tags such as
   `0.3.0-rc1` can be shown in About, `--help` / `--version` and package names
   without changing the numeric `QNAPI_VERSION`.
+- `qnapic --version` / `-v` prints `QNapi <displayable version>` and exits 0.
 
 ### Changed
 
@@ -46,8 +47,8 @@ engine (create a consumer named **QNapi** under Profile → API consumers).
   Unicode and no longer needs the nsProcess plugin; AppImage is built with
   linuxdeploy; Windows and macOS 7-Zip and MediaInfo binaries are downloaded
   by a pinned `scripts/fetch_deps.sh` instead of being committed.
-- Standalone command-line binary `qnapic` (upstream #120, previously landed on
-  the 0.2.4-snapshot branch).
+- Standalone command-line binary `qnapic` (upstream #120, previously landed
+  after 0.2.3 on upstream's 0.2.4-snapshot).
 - Subtitles whose hash does not match the video are marked as possibly not
   matching and are never auto-downloaded (including when there is only one
   result). Search continues to other engines and to the backup language.
@@ -57,16 +58,23 @@ engine (create a consumer named **QNapi** under Profile → API consumers).
   nothing matched the hash, and a non-zero status for a failed download (plain
   "not found" previously exited 0).
 
+### Removed
+
+- Travis CI and AppVeyor configs, and dead badges/links that pointed at the
+  unmaintained upstream project.
+- The libmaia XML-RPC client and the legacy OpenSubtitles.org XML-RPC engine.
+- Committed 7-Zip and MediaInfo binaries (replaced by `scripts/fetch_deps.sh`).
+- qmake `.pro` / `.pri` project files.
+
 ### Fixed
 
 - Encoding auto-detect calling the wrong conversion overload, and leftover
   UTF-8 BOM when converting UTF-8+BOM to UTF-8 (upstream #200).
 - Memory-safety issues found with ASan: dangling post-processing config
   reference (stack-use-after-scope) and uninitialized SRT timestamps.
-- OpenSubtitles.org and Napisy24 searches for files larger than 2 GiB
-  (upstream #178).
+- Napisy24 searches for files larger than 2 GiB (upstream #178).
 - Use of system directory separators (upstream #187).
-- Backup language being forced to English (upstream, 0.2.4-snapshot).
+- Backup language being forced to English (upstream, after 0.2.3).
 - `remove_words_enabled` applied consistently (upstream #135).
 - Tray icon uses `qnapi-panel` when available (upstream #131 / #138).
 - Scrollbar in the About dialog when needed (upstream #139).
@@ -79,6 +87,9 @@ engine (create a consumer named **QNapi** under Profile → API consumers).
   OpenSubtitles engine can connect.
 - Linux `.deb` needs `qt6-qpa-plugins` at runtime for the xcb platform plugin
   and TLS backends.
+- GitHub Release assets cannot contain `~`, so a prerelease `.deb` is uploaded
+  as `qnapi_0.3.0.rc1-1_amd64.deb` while the package version inside remains
+  `0.3.0~rc1-1` (so it sorts before `0.3.0-1`).
 
 ## [0.2.3] - 2017-05-19
 
@@ -101,5 +112,5 @@ Earlier history is in [`doc/ChangeLog`](doc/ChangeLog) (Polish).
 - Loss of colour information during subtitle conversion (#100).
 
 [Unreleased]: https://github.com/MikoWhy91/qnapi/compare/0.3.0...HEAD
-[0.3.0]: https://github.com/MikoWhy91/qnapi/compare/0.2.3...0.3.0
+[0.3.0]: https://github.com/MikoWhy91/qnapi/compare/e8e31be...0.3.0
 [0.2.3]: https://github.com/QNapi/qnapi/releases/tag/0.2.3

@@ -36,35 +36,40 @@ assert_fail() {
 }
 
 VER=$(sh "$META" numeric-version)
-assert_eq "$VER" "0.3.0" "QNAPI_VERSION"
+echo "$VER" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || {
+  echo "FAIL: QNAPI_VERSION '$VER' is not major.minor.patch" >&2
+  fail=1
+}
 
-assert_ok "tag 0.3.0" sh "$META" check-tag 0.3.0
-assert_ok "tag 0.3.0-rc1" sh "$META" check-tag 0.3.0-rc1
-assert_fail "tag 0.3.1-rc1" sh "$META" check-tag 0.3.1-rc1
-assert_fail "tag 0.2.3" sh "$META" check-tag 0.2.3
-assert_fail "tag v0.3.0" sh "$META" check-tag v0.3.0
+assert_ok "tag $VER" sh "$META" check-tag "$VER"
+assert_ok "tag ${VER}-rc1" sh "$META" check-tag "${VER}-rc1"
+assert_fail "mismatched prerelease 9.9.9-rc1" sh "$META" check-tag 9.9.9-rc1
+assert_fail "unrelated version 0.0.1" sh "$META" check-tag 0.0.1
+assert_fail "v prefix" sh "$META" check-tag "v${VER}"
 
-if sh "$META" is-prerelease 0.3.0-rc1; then
+if sh "$META" is-prerelease "${VER}-rc1"; then
   :
 else
-  echo "FAIL: 0.3.0-rc1 should be a prerelease" >&2
+  echo "FAIL: ${VER}-rc1 should be a prerelease" >&2
   fail=1
 fi
-if sh "$META" is-prerelease 0.3.0; then
-  echo "FAIL: 0.3.0 should not be a prerelease" >&2
+if sh "$META" is-prerelease "$VER"; then
+  echo "FAIL: $VER should not be a prerelease" >&2
   fail=1
 fi
 
-assert_eq "$(sh "$META" debian-version 0.3.0)" "0.3.0-1" "debian 0.3.0"
-assert_eq "$(sh "$META" debian-version 0.3.0-rc1)" "0.3.0~rc1-1" "debian 0.3.0-rc1"
+assert_eq "$(sh "$META" debian-version "$VER")" "${VER}-1" "debian $VER"
+assert_eq "$(sh "$META" debian-version "${VER}-rc1")" "${VER}~rc1-1" "debian ${VER}-rc1"
+assert_eq "$(sh "$META" debian-artifact-name "$VER")" "qnapi_${VER}-1_amd64.deb" "deb filename $VER"
+assert_eq "$(sh "$META" debian-artifact-name "${VER}-rc1")" "qnapi_${VER}.rc1-1_amd64.deb" "deb filename ${VER}-rc1"
 
-notes_rc=$(sh "$META" release-notes 0.3.0-rc1)
-echo "$notes_rc" | grep -q "test build of QNapi 0.3.0" || {
+notes_rc=$(sh "$META" release-notes "${VER}-rc1")
+echo "$notes_rc" | grep -q "test build of QNapi ${VER}" || {
   echo "FAIL: rc notes missing test-build sentence" >&2
   fail=1
 }
 echo "$notes_rc" | grep -q "OpenSubtitles.com REST API" || {
-  echo "FAIL: rc notes missing 0.3.0 changelog body" >&2
+  echo "FAIL: rc notes missing ${VER} changelog body" >&2
   fail=1
 }
 echo "$notes_rc" | grep -Eq 'This is a test build' || {
@@ -72,39 +77,41 @@ echo "$notes_rc" | grep -Eq 'This is a test build' || {
   fail=1
 }
 
-notes_final=$(sh "$META" release-notes 0.3.0)
+notes_final=$(sh "$META" release-notes "$VER")
 echo "$notes_final" | grep -q "test build" && {
-  echo "FAIL: final 0.3.0 notes must not include the test-build note" >&2
+  echo "FAIL: final $VER notes must not include the test-build note" >&2
   fail=1
 }
-echo "$notes_final" | grep -q "## \[0.3.0\]" || {
-  echo "FAIL: final notes missing ## [0.3.0] heading" >&2
+echo "$notes_final" | grep -q "## \[${VER}\]" || {
+  echo "FAIL: final notes missing ## [$VER] heading" >&2
   fail=1
 }
 echo "$notes_final" | grep -q "^## \[0.2.3\]" && {
-  echo "FAIL: 0.3.0 notes should not include the 0.2.3 section" >&2
+  echo "FAIL: $VER notes should not include the 0.2.3 section" >&2
   fail=1
 }
 
-# Artifact names for both styles
-sh "$META" expected-artifacts 0.3.0-rc1 | grep -qx 'QNapi-0.3.0-rc1-setup.exe' || {
+sh "$META" expected-artifacts "${VER}-rc1" | grep -qx "QNapi-${VER}-rc1-setup.exe" || {
   echo "FAIL: rc setup.exe name" >&2
   fail=1
 }
-sh "$META" expected-artifacts 0.3.0-rc1 | grep -qx 'qnapi_0.3.0~rc1-1_amd64.deb' || {
-  echo "FAIL: rc deb name" >&2
+sh "$META" expected-artifacts "${VER}-rc1" | grep -qx "qnapi_${VER}.rc1-1_amd64.deb" || {
+  echo "FAIL: rc deb release filename should use '.' not '~'" >&2
   fail=1
 }
-sh "$META" expected-artifacts 0.3.0 | grep -qx 'QNapi-0.3.0.dmg' || {
+sh "$META" expected-artifacts "${VER}-rc1" | grep -q '~' && {
+  echo "FAIL: expected-artifacts for rc must not contain '~'" >&2
+  fail=1
+}
+sh "$META" expected-artifacts "$VER" | grep -qx "QNapi-${VER}.dmg" || {
   echo "FAIL: final dmg name" >&2
   fail=1
 }
-sh "$META" expected-artifacts 0.3.0 | grep -qx 'qnapi-0.3.0.tar.gz' || {
+sh "$META" expected-artifacts "$VER" | grep -qx "qnapi-${VER}.tar.gz" || {
   echo "FAIL: final tarball name" >&2
   fail=1
 }
 
-# English-only changelog / notes (no remaining Polish changelog phrasing)
 if echo "$notes_rc" | grep -Eq 'naprawiony|przebudowany|mozliwosc'; then
   echo "FAIL: release notes must be English" >&2
   fail=1

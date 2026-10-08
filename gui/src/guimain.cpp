@@ -37,6 +37,12 @@ int processCommand(QNapiApp &app, QVariant cliCommand,
     QStringList cliArgs = cliCommand.value<RunCLIApp>().arguments;
     return GuiMain::runCLI(cliArgs);
 
+  } else if (cliCommand.canConvert<ShowVersion>()) {
+    std::cout << QString("QNapi %1")
+                     .arg(LibQNapi::displayableVersion())
+                     .toStdString()
+              << std::endl;
+    return 0;
   } else if (cliCommand.canConvert<ShowHelp>()) {
     auto helpLines = HelpHelper::formatHelpLinesText(cliArgParsers, 30, 64);
 

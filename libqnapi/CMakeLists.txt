@@ -27,6 +27,7 @@ add_library(libqnapi STATIC
     src/parser/scandirectoryargparser.cpp
     src/parser/showhelpargparser.cpp
     src/parser/showhelplanguagesargparser.cpp
+    src/parser/showversionargparser.cpp
     src/parser/showlistargparser.cpp
     src/parser/showoptionsargparser.cpp
     src/qnapi.cpp

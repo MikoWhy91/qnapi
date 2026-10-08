@@ -95,6 +95,12 @@ debian_version() {
   printf '%s-1\n' "$(debian_upstream "$1")"
 }
 
+# GitHub Release assets cannot contain '~' (it is rewritten to '.'). Keep the
+# package version with '~' for dpkg ordering, but name the uploaded file with '.'.
+debian_artifact_name() {
+  printf 'qnapi_%s_amd64.deb\n' "$(debian_version "$1" | tr '~' '.')"
+}
+
 prepare_debian_changelog() {
   tag=$1
   debver=$(debian_version "$tag")
@@ -119,14 +125,13 @@ EOF
 
 expected_artifacts() {
   tag=$1
-  deb=$(debian_version "$tag")
   cat <<EOF
 QNapi-${tag}-setup.exe
 QNapi-${tag}-portable.zip
 QNapi-${tag}-x86_64.AppImage
 QNapi-${tag}.dmg
 qnapi-${tag}.tar.gz
-qnapi_${deb}_amd64.deb
+$(debian_artifact_name "$tag")
 SHA256SUMS
 EOF
 }
@@ -154,11 +159,12 @@ case "$cmd" in
   changelog-section) changelog_section "${1:?version}" ;;
   release-notes) release_notes "${1:?tag}" ;;
   debian-version) debian_version "${1:?tag}" ;;
+  debian-artifact-name) debian_artifact_name "${1:?tag}" ;;
   prepare-debian-changelog) prepare_debian_changelog "${1:?tag}" ;;
   expected-artifacts) expected_artifacts "${1:?tag}" ;;
   check-artifacts) check_artifacts "${1:?dir}" "${2:?tag}" ;;
   *)
-    echo "usage: $0 numeric-version|displayable-version|check-tag TAG|is-prerelease TAG|changelog-section VER|release-notes TAG|debian-version TAG|prepare-debian-changelog TAG|expected-artifacts TAG|check-artifacts DIR TAG" >&2
+    echo "usage: $0 numeric-version|displayable-version|check-tag TAG|is-prerelease TAG|changelog-section VER|release-notes TAG|debian-version TAG|debian-artifact-name TAG|prepare-debian-changelog TAG|expected-artifacts TAG|check-artifacts DIR TAG" >&2
     exit 2
     ;;
 esac

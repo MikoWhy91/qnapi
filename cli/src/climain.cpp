@@ -81,11 +81,18 @@ void printHelpLanguages(const Console &c, const QNapiConfig &config) {
 
 int processCommand(QVariant cliCommand, const QNapiConfig &config,
                    const QList<QSharedPointer<CliArgParser>> &cliArgParsers) {
+  using namespace QNapiCommand;
+  if (cliCommand.canConvert<ShowVersion>()) {
+    const Console versionConsole;
+    versionConsole.printLine(
+        QString("QNapi %1").arg(LibQNapi::displayableVersion()));
+    return 0;
+  }
+
   const Console c(config.generalConfig().quietBatch());
 
   printHeader(c);
 
-  using namespace QNapiCommand;
   if (cliCommand.canConvert<DownloadSubtitles>()) {
     QStringList movieFilePaths =
         cliCommand.value<DownloadSubtitles>().movieFilePaths;

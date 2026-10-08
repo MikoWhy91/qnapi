@@ -63,6 +63,8 @@ jobs:
           QT_QPA_PLATFORM=offscreen timeout 5 build/bin/qnapi --help || [ $? -eq 124 ]
           ver=${QNAPI_DISPLAYABLE_VERSION:-$(sh scripts/version.sh)}
           build/bin/qnapic --help | grep -E "QNapi ${ver} \\(Qt"
+          build/bin/qnapic --version | grep -E "^QNapi ${ver}$"
+          build/bin/qnapic -v | grep -E "^QNapi ${ver}$"
 
       - name: Build AppImage
         run: |
@@ -127,6 +129,7 @@ jobs:
           QT_QPA_PLATFORM=offscreen timeout 5 build/bin/qnapi --help || [ $? -eq 124 ]
           ver=${QNAPI_DISPLAYABLE_VERSION:-$(sh scripts/version.sh)}
           build/bin/qnapic --help | grep -E "QNapi ${ver} \\(Qt"
+          build/bin/qnapic --version | grep -E "^QNapi ${ver}$"
 
   macos:
     name: macOS (Qt 6.8)
@@ -173,6 +176,7 @@ jobs:
           test -f build/bin/QNapi.app/Contents/MacOS/libmediainfo.0.dylib
           ver=${QNAPI_DISPLAYABLE_VERSION:-$(sh scripts/version.sh)}
           build/bin/qnapic --help | grep -E "QNapi ${ver} \\(Qt"
+          build/bin/qnapic --version | grep -E "^QNapi ${ver}$"
 
       - name: Deploy Qt and create the disk image
         run: |
@@ -266,6 +270,9 @@ jobs:
           $help = & win32\out\qnapic.exe --help | Out-String
           $want = "QNapi $ver (Qt"
           if ($help -notlike "*$want*") { throw "qnapic --help did not include '$want'" }
+          $verLine = (& win32\out\qnapic.exe --version | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0) { throw "qnapic --version failed" }
+          if ($verLine -ne "QNapi $ver") { throw "qnapic --version was '$verLine', expected 'QNapi $ver'" }
 
       - name: Build installer
         shell: pwsh

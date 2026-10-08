@@ -46,6 +46,7 @@ jobs:
       - id: plan
         env:
           EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
           REF_NAME: ${{ github.ref_name }}
           SIMULATE_TAG: ${{ github.event.inputs.simulate_tag }}
           DRY_RUN_INPUT: ${{ github.event.inputs.dry_run }}
@@ -62,7 +63,10 @@ jobs:
             if [ "$DRY_RUN_INPUT" = "false" ]; then
               dry_run=false
             fi
-            if [ -n "$SIMULATE_TAG" ]; then
+            if [ "$dry_run" = "false" ] && [ "${REF#refs/tags/}" != "$REF" ]; then
+              # publishing from a tag ref: only that tag, not rc+final
+              tags="$REF_NAME"
+            elif [ -n "$SIMULATE_TAG" ]; then
               tags=$(printf '%s' "$SIMULATE_TAG" | tr ',' ' ')
             else
               tags="${VER}-rc1 ${VER}"
@@ -123,9 +127,12 @@ jobs:
       - name: Assemble artifacts
         run: |
           set -eu
+          set -o pipefail
           mkdir -p dist
           find artifacts -type f -name 'QNapi-*-x86_64.AppImage' -exec cp -v {} dist/ \;
-          find artifacts -type f -name 'qnapi_*.deb' -exec cp -v {} dist/ \;
+          find artifacts -type f -name 'qnapi_*.deb' | while IFS= read -r f; do
+            cp -v "$f" "dist/$(basename "$f" | tr '~' '.')"
+          done
           find artifacts -type f -name 'QNapi-*.dmg' -exec cp -v {} dist/ \;
           find artifacts -type f -name 'QNapi-*-setup.exe' -exec cp -v {} dist/ \;
 
@@ -149,7 +156,7 @@ jobs:
             "QNapi-${TAG}-x86_64.AppImage" \
             "QNapi-${TAG}.dmg" \
             "qnapi-${TAG}.tar.gz" \
-            "qnapi_$(sh "$GITHUB_WORKSPACE/scripts/release-meta.sh" debian-version "$TAG")_amd64.deb" \
+            "$(sh "$GITHUB_WORKSPACE/scripts/release-meta.sh" debian-artifact-name "$TAG")" \
             > SHA256SUMS)
 
           echo "dist contents:"
