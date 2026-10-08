@@ -4,8 +4,8 @@
 
 QNapi is free software for automatic fetching subtitles for given movie file.
 It uses online databases such as NapiProjekt, OpenSubtitles.com and Napisy24.
-It is based on Qt5 library, so it can be launched on any supported operating
-system, including Windows, OSX and Linux.
+It is based on the Qt library (Qt 6, or Qt 5.15), so it can be launched on any
+supported operating system, including Windows, macOS and Linux.
 
 This repository is a maintained fork of QNapi. QNapi was originally created and
 developed by Piotr Krzemiński; all credit for the original program goes to him and
@@ -24,67 +24,89 @@ Please report bugs and feature requests at https://github.com/MikoWhy91/qnapi/is
 
 #### Prerequisites
 
-* C++ compiler with c++11 support installed (`clang++`, `g++` or *MinGW* for Windows), present in `PATH`
-* Qt 5.2+ (most recent 5.x recommended) installed with `qmake` present in `PATH` (you can find one at http://www.qt.io/download-open-source/)
+* C++17 compiler (`g++`, `clang++` or MSVC 2019+)
+* CMake 3.16 or newer (Ninja recommended)
+* Qt 6.2 or newer with the Core, Network, Widgets, Qt5Compat (Core5Compat) and
+  Linguist tools modules, or Qt 5.15 (Core, Network, Widgets, Linguist tools).
+  Qt 6 is used when both are installed.
+* Linux: `libmediainfo` development files and `pkg-config`
 
-#### Binary prerequisites
+On Debian/Ubuntu:
 
-QNapi requires these binary dependencies:
+```
+sudo apt install cmake ninja-build g++ pkg-config libmediainfo-dev \
+    qt6-base-dev qt6-tools-dev qt6-l10n-tools libqt6core5compat6-dev
+```
 
-* p7zip (7z, 7za) - to unpack subtitles, which are commonly compressed with 7zip
-* libmediainfo - to retrieve movie info such as dimensions, duration and frame rate
+#### Runtime dependencies
 
-Linux/UNIX users can find these dependencies in separate packages.
+QNapi uses two external programs/libraries:
 
-Statically compiled **p7zip** binaries are provided in this repository for Windows/OSX
-users at `win32/content/7za.exe` and `macx/content/7za`, respectively. Similarly,
-compiled **libmediainfo** libraries are provided for Windows/OSX in
-`deps/libmediainfo/`.
+* 7-Zip (`7z` or `7za`) - to unpack subtitles, which are commonly compressed with 7-Zip
+* libmediainfo - to read the frame rate needed to convert between frame-based
+  (MicroDVD) and time-based (SRT, MPL2, TMPlayer) subtitles
 
-> **WARNING!** Precompiled binaries are stripped from the source archive!
+Linux uses the distribution's packages (`7zip` or `p7zip-full`, `libmediainfo`).
+
+The Windows and macOS packages bundle both. They are not stored in the repository;
+download them before configuring:
+
+```
+scripts/fetch_deps.sh            # Git Bash on Windows, Terminal on macOS
+```
+
+This puts pinned versions of 7-Zip and the MediaInfo library (with their licenses)
+into `deps/prebuilt/<platform>/`, verifying their SHA-256 checksums. CMake warns if
+they are missing; another location can be passed with `-DQNAPI_PREBUILT_DIR=...`.
 
 #### Cloning the source code
-
-First, you have to clone project source code using git client:
 
 `$ git clone https://github.com/MikoWhy91/qnapi.git`
 
 #### Compiling
 
-To compile the application, you have to execute two following commands in `qnapi` root directory:
+```
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
 
-`$ qmake`
+Useful options (`-D<option>=<value>` when configuring):
 
-This will produce `Makefile`.
+* `QNAPI_BUILD_GUI=OFF` / `QNAPI_BUILD_CLI=OFF` - skip the graphical (`qnapi`) or
+  command-line (`qnapic`) application
+* `QNAPI_QT_MAJOR_VERSION=5` or `6` - pick the Qt version explicitly
+* `BUILD_TESTING=OFF` - skip the tests
+* `CMAKE_PREFIX_PATH=/path/to/Qt/6.x/<compiler>` - use a Qt that is not found automatically
 
-> By appending `CONFIG+=no_cli` or `CONFIG+=no_gui` to qmake invocation you can disable building
-> command-line or graphical interface binaries.
+#### Running the tests
 
+```
+ctest --test-dir build --output-on-failure
+```
 
-`$ make` (or `mingw32-make` on Windows)
-
-This will compile the sources and build executable binary (or app bundle on OSX).
-
-> **Important!** Windows users have to execute one more command:
->
-> `$ make install` (or `mingw32-make install`)
->
-> This one will copy all binaries, libraries and other dependencies to `win32/out` directory.
+The tests use only local files and a local mock HTTP server, never the real
+subtitle services. The 7-Zip test runs against the bundled 7-Zip or one found in
+`PATH` (or `QNAPI_TEST_7ZIP`) and is skipped if there is none.
 
 #### Running
 
-By default, output binaries are placed by `make` in different locations, depending on your operating system:
+The binaries are placed in `build/bin`: `qnapi` and `qnapic` on Linux,
+`QNapi.app` and `qnapic` on macOS, `qnapi.exe` and `qnapic.exe` on Windows.
 
-* Linux - `qnapi` in root project directory
-* OSX - `macx/QNapi.app` bundle
-* Windows - `win32/out/qnapi.exe` executable
+#### Installing
 
-After you locate your binaries, you can run the application.
+On Linux, `sudo cmake --install build` installs the binaries, the desktop file,
+icons, man pages and documentation under `/usr/local` (configure with
+`-DCMAKE_INSTALL_PREFIX=/usr` to change it).
 
-> ##### 7zip note #####
-> For proper subtitle extraction after download, *7zip* executable is required to be passed in application's settings.
-> Linux users have to install 7zip binary package from distribution repositories or compile on its own.
-> For Windows and OSX there are pre-built binaries included in this repository, in `win32` and `macx` directories appropriately and should be automatically detected by the application.
+On Windows, `cmake --install build` copies everything needed to run QNapi into
+`win32\out` by default: both executables, the Qt libraries (via `windeployqt`), the
+MSVC runtime, 7-Zip, MediaInfo and the OpenSSL DLLs (see below).
+
+> ##### 7-Zip note #####
+> On Windows QNapi uses the `7za.exe` next to its executable. On Linux and macOS it looks
+> for `7z` or `7za` in `PATH`, then next to its executable (and in the app bundle's
+> `Resources` on macOS). A different path can be set in the application's settings.
 
 ## OpenSubtitles configuration
 
@@ -113,10 +135,12 @@ When the limit is reached, QNapi shows the server's message, including when the 
 Only subtitles whose hash matches the video file are downloaded automatically. Other results
 found by file name are marked as possibly not matching and have to be picked from the list.
 
-The API is HTTPS-only. On Windows, Qt needs the OpenSSL DLLs next to the QNapi executable
-(`libssl-1_1.dll` and `libcrypto-1_1.dll` for Qt 5.12.4 and newer, `libeay32.dll` and
-`ssleay32.dll` for older Qt). `make install` copies them from the directory given in
-`OPENSSL_BIN_DIR` (qmake variable or environment variable) and prints a warning if they are missing.
+The API is HTTPS-only. On Windows, Qt needs the OpenSSL DLLs next to the QNapi executable:
+`libssl-3-x64.dll` and `libcrypto-3-x64.dll` for Qt 6.5 and newer, `libssl-1_1-x64.dll` and
+`libcrypto-1_1-x64.dll` for Qt 5.15 - 6.4 (without `-x64` for 32-bit builds). `cmake --install`
+copies them from the directory given in `OPENSSL_BIN_DIR` (CMake cache variable or environment
+variable); configuring prints a warning if they are missing. Qt's online installer and
+`aqtinstall` provide matching builds (`tools_opensslv3_x64`).
 
 The command-line client reads the same settings. You can also set them directly in `qnapi.ini`
 (`~/.config/qnapi.ini` on Linux):
@@ -130,33 +154,31 @@ password=optional-password
 
 ## Making redistributable package
 
-### OSX
+### macOS
 
-#### Prerequisites
+You need the [appdmg](https://github.com/LinusU/node-appdmg) tool (`npm install -g appdmg`)
+and the bundled dependencies (`scripts/fetch_deps.sh`). Then:
 
-You need `appdmg` script installed. You can found it at https://github.com/LinusU/node-appdmg
+`$ cmake --build build --target appdmg`
 
-#### Building .dmg image
-
-To build .dmg image for OSX with nice, drag&drop installer, you have to execute:
-
-`$ make appdmg`
-
-`QNapi-x.y.z.dmg` will appear in `macx` directory when command is completed.
+This runs `macdeployqt` on `QNapi.app` and creates `build/QNapi.dmg` with a drag & drop installer.
 
 ### Windows
 
-#### Prerequisites
+You need [NSIS](https://nsis.sourceforge.io) 3.x; no plugins are required.
 
-You need to have **NSIS** 2.x installed. You can found it at http://nsis.sourceforge.net
+After `cmake --install build` has filled `win32\out`, build the installer with
 
-Also, you will need to manually install NSIS plugin **nsProcess**. It can be found at
-http://nsis.sourceforge.net/NsProcess_plugin
+`$ makensis win32\QNapi-setup.nsi`
 
-#### Building Windows installer
+or by right-clicking the script and choosing *Compile NSIS script*. `QNapi-x.y.z-setup.exe`
+appears in the `win32` directory (`makensis /DAPPVER=x.y.z` overrides the version).
 
-Installer script is placed at `win32/QNapi-setup.nsi`. You can build binary exe package using NSIS user interface (by `right mouse button -> compile NSIS script`) or from command line:
+### Linux
 
-`$ C:\Path\To\makensis.exe QNapi-setup.nsi`
-
-After a while, `QNapi-x.y.z-setup.exe` file will appear in `win32` directory.
+* AppImage: configure with `-DCMAKE_INSTALL_PREFIX=/usr`, build, then run
+  `BUILD_DIR=build scripts/make_appimage.sh` (downloads linuxdeploy; set `QMAKE=qmake6`
+  if needed).
+* Debian/Ubuntu package: `dpkg-buildpackage -us -uc -b` (build dependencies are
+  listed in `debian/control`).
+* Source tarball without the prebuilt binaries: `scripts/make_src_tarball.sh`.

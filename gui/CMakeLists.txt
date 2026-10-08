@@ -91,8 +91,7 @@ target_link_libraries(qnapi PRIVATE libqnapi Qt::Widgets Qt::Network)
 qnapi_embed_translations(qnapi)
 
 if(APPLE)
-  find_library(CORE_FOUNDATION CoreFoundation REQUIRED)
-  target_link_libraries(qnapi PRIVATE Qt::Xml ${CORE_FOUNDATION})
+  target_link_libraries(qnapi PRIVATE Qt::Xml)
   set_target_properties(qnapi PROPERTIES
       OUTPUT_NAME QNapi
       MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/macx/Info.plist")

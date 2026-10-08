@@ -63,6 +63,12 @@ endif()
 if(WIN32 OR APPLE)
   target_include_directories(libqnapi PRIVATE "${PROJECT_SOURCE_DIR}/deps/libmediainfo/include")
   target_link_libraries(libqnapi PRIVATE ${CMAKE_DL_LIBS})
+  if(APPLE)
+    # MediaInfoDLL.h uses CFBundle* to find the dylib next to the executable.
+    # PUBLIC so both qnapi and qnapic pick it up when linking the static lib.
+    find_library(CORE_FOUNDATION CoreFoundation REQUIRED)
+    target_link_libraries(libqnapi PUBLIC ${CORE_FOUNDATION})
+  endif()
 else()
   find_package(PkgConfig REQUIRED)
   # not an IMPORTED_TARGET: some distributions' libmediainfo.pc lists
