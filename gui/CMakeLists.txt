@@ -55,9 +55,7 @@ if(WIN32)
   list(APPEND QNAPI_GUI_SOURCES
       src/qcumber/qinterprocesschannel_win32.cpp
       src/qcumber/qinterprocesschannel_win32.h
-      "${PROJECT_SOURCE_DIR}/win32/qnapi.rc")
-  set_property(SOURCE "${PROJECT_SOURCE_DIR}/win32/qnapi.rc" APPEND PROPERTY
-               INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/win32")
+      "${QNAPI_RC_FILE}")
 else()
   list(APPEND QNAPI_GUI_SOURCES
       src/qcumber/qinterprocesschannel.cpp
@@ -94,7 +92,14 @@ if(APPLE)
   target_link_libraries(qnapi PRIVATE Qt::Xml)
   set_target_properties(qnapi PROPERTIES
       OUTPUT_NAME QNapi
-      MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/macx/Info.plist")
+      MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/macx/Info.plist"
+      MACOSX_BUNDLE_BUNDLE_NAME QNapi
+      MACOSX_BUNDLE_GUI_IDENTIFIER "org.qnapi.QNapi"
+      MACOSX_BUNDLE_ICON_FILE qnapi.icns
+      MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+      MACOSX_BUNDLE_SHORT_VERSION_STRING "${QNAPI_DISPLAYABLE_VERSION}"
+      MACOSX_BUNDLE_COPYRIGHT "Copyright (C) 2008-2017 Piotr Krzeminski; 2026 Mikolaj Stanczak"
+      MACOSX_BUNDLE_INFO_STRING "QNapi ${QNAPI_DISPLAYABLE_VERSION}")
 endif()
 
 if(APPLE)

@@ -49,6 +49,10 @@ add_library(libqnapi STATIC
 )
 set_target_properties(libqnapi PROPERTIES OUTPUT_NAME qnapi)
 
+# PUBLIC so qnapi/qnapic see a release-tag override (e.g. 0.3.0-rc1).
+target_compile_definitions(libqnapi PUBLIC
+    "QNAPI_DISPLAYABLE_VERSION=\"${QNAPI_DISPLAYABLE_VERSION}\"")
+
 target_include_directories(libqnapi PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${PROJECT_SOURCE_DIR}/deps/qt-maybe")

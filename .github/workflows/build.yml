@@ -1,0 +1,299 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      include_qt5:
+        description: Also build the Ubuntu 24.04 / Qt 5.15 job
+        type: boolean
+        default: false
+      displayable_version:
+        description: Override QNAPI_DISPLAYABLE_VERSION (e.g. 0.3.0-rc1). Empty uses version.h.
+        type: string
+        default: ''
+      upload_artifacts:
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux (Qt 6, ubuntu-22.04)
+    runs-on: ubuntu-22.04
+    env:
+      QNAPI_DISPLAYABLE_VERSION: ${{ inputs.displayable_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check displayable tag
+        if: inputs.displayable_version != ''
+        run: sh scripts/release-meta.sh check-tag "$QNAPI_DISPLAYABLE_VERSION"
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build g++ pkg-config libmediainfo-dev zlib1g-dev file \
+            qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools \
+            libqt6core5compat6-dev qt6-qpa-plugins libgl-dev p7zip-full
+
+      - name: Configure
+        run: |
+          extra=
+          if [ -n "$QNAPI_DISPLAYABLE_VERSION" ]; then
+            extra="-DQNAPI_DISPLAYABLE_VERSION=$QNAPI_DISPLAYABLE_VERSION"
+          fi
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DQNAPI_QT_MAJOR_VERSION=6 \
+            $extra
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Smoke test
+        run: |
+          build/bin/qnapic --help
+          QT_QPA_PLATFORM=offscreen timeout 5 build/bin/qnapi --help || [ $? -eq 124 ]
+          ver=${QNAPI_DISPLAYABLE_VERSION:-$(sh scripts/version.sh)}
+          build/bin/qnapic --help | grep -E "QNapi ${ver} \\(Qt"
+
+      - name: Build AppImage
+        run: |
+          QMAKE=$(command -v qmake6 || echo /usr/lib/qt6/bin/qmake) BUILD_DIR=build sh scripts/make_appimage.sh
+          mv QNapi*.AppImage "QNapi-$(sh scripts/version.sh)-x86_64.AppImage"
+
+      - name: Build Debian package
+        run: |
+          sudo apt-get install -y --no-install-recommends debhelper dpkg-dev fakeroot
+          if [ -n "$QNAPI_DISPLAYABLE_VERSION" ]; then
+            sh scripts/release-meta.sh prepare-debian-changelog "$QNAPI_DISPLAYABLE_VERSION"
+          fi
+          dpkg-buildpackage -us -uc -b
+          mkdir deb && mv ../qnapi_*.deb deb/
+
+      - uses: actions/upload-artifact@v4
+        if: inputs.upload_artifacts
+        with:
+          name: qnapi-linux-x86_64${{ inputs.displayable_version != '' && format('-{0}', inputs.displayable_version) || '' }}
+          path: |
+            QNapi-*.AppImage
+            deb/*.deb
+          if-no-files-found: error
+
+  linux-qt5:
+    name: Linux (Qt 5, ubuntu-24.04)
+    if: inputs.include_qt5 == true
+    runs-on: ubuntu-24.04
+    env:
+      QNAPI_DISPLAYABLE_VERSION: ${{ inputs.displayable_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build g++ pkg-config libmediainfo-dev zlib1g-dev file \
+            qtbase5-dev qttools5-dev qttools5-dev-tools 7zip
+
+      - name: Configure
+        run: |
+          extra=
+          if [ -n "$QNAPI_DISPLAYABLE_VERSION" ]; then
+            extra="-DQNAPI_DISPLAYABLE_VERSION=$QNAPI_DISPLAYABLE_VERSION"
+          fi
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DQNAPI_QT_MAJOR_VERSION=5 \
+            $extra
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Smoke test
+        run: |
+          build/bin/qnapic --help
+          QT_QPA_PLATFORM=offscreen timeout 5 build/bin/qnapi --help || [ $? -eq 124 ]
+          ver=${QNAPI_DISPLAYABLE_VERSION:-$(sh scripts/version.sh)}
+          build/bin/qnapic --help | grep -E "QNapi ${ver} \\(Qt"
+
+  macos:
+    name: macOS (Qt 6.8)
+    runs-on: macos-14
+    env:
+      QNAPI_DISPLAYABLE_VERSION: ${{ inputs.displayable_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check displayable tag
+        if: inputs.displayable_version != ''
+        run: sh scripts/release-meta.sh check-tag "$QNAPI_DISPLAYABLE_VERSION"
+
+      - uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4.4.1
+        with:
+          version: '6.8.*'
+          modules: qt5compat
+          cache: true
+
+      - name: Install tools
+        run: brew install ninja
+
+      - name: Fetch 7-Zip and MediaInfo
+        run: scripts/fetch_deps.sh macos
+
+      - name: Configure
+        run: |
+          extra=
+          if [ -n "$QNAPI_DISPLAYABLE_VERSION" ]; then
+            extra="-DQNAPI_DISPLAYABLE_VERSION=$QNAPI_DISPLAYABLE_VERSION"
+          fi
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" $extra
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Smoke test
+        run: |
+          build/bin/qnapic --help
+          build/bin/QNapi.app/Contents/Resources/7za i > /dev/null
+          test -f build/bin/QNapi.app/Contents/MacOS/libmediainfo.0.dylib
+          ver=${QNAPI_DISPLAYABLE_VERSION:-$(sh scripts/version.sh)}
+          build/bin/qnapic --help | grep -E "QNapi ${ver} \\(Qt"
+
+      - name: Deploy Qt and create the disk image
+        run: |
+          cmake --build build --target macdeploy
+          npm install -g appdmg && cmake --build build --target appdmg || {
+            echo "appdmg failed, creating a plain disk image instead"
+            hdiutil create -volname QNapi -srcfolder build/bin/QNapi.app -ov -format UDZO build/QNapi.dmg
+          }
+          mv build/QNapi.dmg "QNapi-$(sh scripts/version.sh).dmg"
+
+      - uses: actions/upload-artifact@v4
+        if: inputs.upload_artifacts
+        with:
+          name: qnapi-macos${{ inputs.displayable_version != '' && format('-{0}', inputs.displayable_version) || '' }}
+          path: QNapi-*.dmg
+          if-no-files-found: error
+
+  windows:
+    name: Windows (Qt 6.8, MSVC)
+    runs-on: windows-2022
+    env:
+      QNAPI_DISPLAYABLE_VERSION: ${{ inputs.displayable_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check displayable tag
+        if: inputs.displayable_version != ''
+        shell: bash
+        run: sh scripts/release-meta.sh check-tag "$QNAPI_DISPLAYABLE_VERSION"
+
+      - uses: jurplel/install-qt-action@a9c63c7c123f3069cff414e7e482d95dfa9d8125 # v4.4.1
+        with:
+          version: '6.8.*'
+          arch: win64_msvc2022_64
+          modules: qt5compat
+          tools: tools_opensslv3_x64
+          cache: true
+
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+
+      - name: Fetch 7-Zip and MediaInfo
+        shell: bash
+        run: scripts/fetch_deps.sh windows
+
+      - name: Locate OpenSSL
+        shell: pwsh
+        run: |
+          $ssl = Get-ChildItem -Path $env:IQTA_TOOLS -Recurse -Filter libssl-3-x64.dll -ErrorAction SilentlyContinue |
+            Where-Object { $_.DirectoryName -match 'bin' } | Select-Object -First 1
+          if (-not $ssl) { throw "OpenSSL 3 DLLs not found under $env:IQTA_TOOLS" }
+          "OPENSSL_BIN_DIR=$($ssl.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "OpenSSL: $($ssl.DirectoryName)"
+
+      - name: Configure
+        shell: bash
+        run: |
+          extra=
+          if [ -n "$QNAPI_DISPLAYABLE_VERSION" ]; then
+            extra="-DQNAPI_DISPLAYABLE_VERSION=$QNAPI_DISPLAYABLE_VERSION"
+          fi
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release $extra
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:OPENSSL_BIN_DIR;$env:PATH"
+          $env:QNAPI_TEST_REQUIRE_OPENSSL = "1"
+          ctest --test-dir build --output-on-failure
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Check the installed files
+        shell: pwsh
+        run: |
+          $missing = @('qnapi.exe', 'qnapic.exe', '7za.exe', 'MediaInfo.dll',
+                       'libssl-3-x64.dll', 'libcrypto-3-x64.dll', 'Qt6Core.dll',
+                       'Qt6Network.dll', 'Qt6Widgets.dll', 'Qt6Core5Compat.dll',
+                       'platforms\qwindows.dll', 'tls\qopensslbackend.dll',
+                       '7-Zip-License.txt', 'LICENSE') |
+            Where-Object { -not (Test-Path "win32\out\$_") }
+          if ($missing) { throw "missing from win32\out: $($missing -join ', ')" }
+          & win32\out\qnapic.exe --help
+          if ($LASTEXITCODE -ne 0) { throw "qnapic --help failed" }
+          $ver = if ($env:QNAPI_DISPLAYABLE_VERSION) { $env:QNAPI_DISPLAYABLE_VERSION } else {
+            (Select-String -Path libqnapi\src\version.h -Pattern 'QNAPI_DISPLAYABLE_VERSION "(.*)"').Matches[0].Groups[1].Value
+          }
+          $help = & win32\out\qnapic.exe --help | Out-String
+          $want = "QNapi $ver (Qt"
+          if ($help -notlike "*$want*") { throw "qnapic --help did not include '$want'" }
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = if ($env:QNAPI_DISPLAYABLE_VERSION) { $env:QNAPI_DISPLAYABLE_VERSION } else {
+            (Select-String -Path libqnapi\src\version.h -Pattern 'QNAPI_DISPLAYABLE_VERSION "(.*)"').Matches[0].Groups[1].Value
+          }
+          if (-not (Get-Command makensis -ErrorAction SilentlyContinue)) {
+            if (Test-Path "${env:ProgramFiles(x86)}\NSIS\makensis.exe") {
+              $env:PATH = "${env:ProgramFiles(x86)}\NSIS;$env:PATH"
+            } else {
+              choco install nsis -y --no-progress
+              $env:PATH = "${env:ProgramFiles(x86)}\NSIS;$env:PATH"
+            }
+          }
+          makensis /DAPPVER=$version win32\QNapi-setup.nsi
+          if ($LASTEXITCODE -ne 0) { throw "makensis failed" }
+
+      - uses: actions/upload-artifact@v4
+        if: inputs.upload_artifacts
+        with:
+          name: qnapi-windows-x64${{ inputs.displayable_version != '' && format('-{0}', inputs.displayable_version) || '' }}
+          path: win32/out/
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        if: inputs.upload_artifacts
+        with:
+          name: qnapi-windows-x64-installer${{ inputs.displayable_version != '' && format('-{0}', inputs.displayable_version) || '' }}
+          path: win32/QNapi-*-setup.exe
+          if-no-files-found: error

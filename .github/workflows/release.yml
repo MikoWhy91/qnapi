@@ -1,0 +1,208 @@
+name: Release
+
+on:
+  push:
+    # GitHub tag filters are globs, not regexes. [0-9]* matches 0.3.0 and 0.3.0-rc1.
+    tags:
+      - '[0-9]*.[0-9]*.[0-9]*'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - 'CHANGELOG.md'
+      - 'libqnapi/src/version.h'
+      - 'scripts/**'
+      - 'CMakeLists.txt'
+      - 'debian/**'
+      - 'win32/**'
+      - 'macx/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and upload artifacts without creating a GitHub Release
+        type: boolean
+        default: true
+      simulate_tag:
+        description: Tag to simulate when dry-running (comma-separated). Empty means both <version>-rc1 and <version>.
+        type: string
+        default: ''
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.simulate_tag || github.event_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-22.04
+    outputs:
+      tags: ${{ steps.plan.outputs.tags }}
+      dry_run: ${{ steps.plan.outputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          SIMULATE_TAG: ${{ github.event.inputs.simulate_tag }}
+          DRY_RUN_INPUT: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -eu
+          sh scripts/release-meta.test.sh
+          VER=$(sh scripts/release-meta.sh numeric-version)
+          dry_run=true
+          tags=""
+          if [ "$EVENT" = "push" ]; then
+            tags="$REF_NAME"
+            dry_run=false
+          elif [ "$EVENT" = "workflow_dispatch" ]; then
+            if [ "$DRY_RUN_INPUT" = "false" ]; then
+              dry_run=false
+            fi
+            if [ -n "$SIMULATE_TAG" ]; then
+              tags=$(printf '%s' "$SIMULATE_TAG" | tr ',' ' ')
+            else
+              tags="${VER}-rc1 ${VER}"
+            fi
+          else
+            tags="${VER}-rc1 ${VER}"
+            dry_run=true
+          fi
+          json=$(printf '%s\n' $tags | jq -R . | jq -s -c .)
+          echo "tags=$json" >> "$GITHUB_OUTPUT"
+          echo "dry_run=$dry_run" >> "$GITHUB_OUTPUT"
+          echo "Planned tags: $json dry_run=$dry_run"
+          for t in $tags; do
+            sh scripts/release-meta.sh check-tag "$t"
+            echo "----- notes for $t -----"
+            sh scripts/release-meta.sh release-notes "$t"
+            echo "----- artifacts for $t -----"
+            sh scripts/release-meta.sh expected-artifacts "$t"
+          done
+
+  build:
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: ${{ fromJSON(needs.plan.outputs.tags) }}
+    uses: ./.github/workflows/build.yml
+    with:
+      include_qt5: false
+      displayable_version: ${{ matrix.tag }}
+      upload_artifacts: true
+
+  assemble:
+    name: Assemble ${{ matrix.tag }}
+    needs: [plan, build]
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: ${{ fromJSON(needs.plan.outputs.tags) }}
+    env:
+      TAG: ${{ matrix.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tag matches QNAPI_VERSION
+        run: sh scripts/release-meta.sh check-tag "$TAG"
+
+      - name: Install zip
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends zip
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*-${{ matrix.tag }}'
+          path: artifacts
+          merge-multiple: false
+
+      - name: Assemble artifacts
+        run: |
+          set -eu
+          mkdir -p dist
+          find artifacts -type f -name 'QNapi-*-x86_64.AppImage' -exec cp -v {} dist/ \;
+          find artifacts -type f -name 'qnapi_*.deb' -exec cp -v {} dist/ \;
+          find artifacts -type f -name 'QNapi-*.dmg' -exec cp -v {} dist/ \;
+          find artifacts -type f -name 'QNapi-*-setup.exe' -exec cp -v {} dist/ \;
+
+          out=$(find artifacts -type f -name qnapi.exe -printf '%h\n' | head -n1)
+          if [ -z "$out" ]; then
+            echo "win32/out (qnapi.exe) not found in artifacts" >&2
+            find artifacts -type f | head -n 100 >&2
+            exit 1
+          fi
+          test -f "$out/tls/qopensslbackend.dll"
+          test -f "$out/libssl-3-x64.dll"
+          test -f "$out/libcrypto-3-x64.dll"
+          (cd "$out" && zip -r "$GITHUB_WORKSPACE/dist/QNapi-${TAG}-portable.zip" .)
+
+          VERSION="$TAG" sh scripts/make_src_tarball.sh
+          mv "../qnapi-${TAG}.tar.gz" dist/
+
+          (cd dist && sha256sum \
+            "QNapi-${TAG}-setup.exe" \
+            "QNapi-${TAG}-portable.zip" \
+            "QNapi-${TAG}-x86_64.AppImage" \
+            "QNapi-${TAG}.dmg" \
+            "qnapi-${TAG}.tar.gz" \
+            "qnapi_$(sh "$GITHUB_WORKSPACE/scripts/release-meta.sh" debian-version "$TAG")_amd64.deb" \
+            > SHA256SUMS)
+
+          echo "dist contents:"
+          ls -la dist
+          cat dist/SHA256SUMS
+          sh scripts/release-meta.sh check-artifacts dist "$TAG"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qnapi-release-${{ matrix.tag }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish ${{ matrix.tag }}
+    if: needs.plan.outputs.dry_run != 'true'
+    needs: [plan, assemble]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        tag: ${{ fromJSON(needs.plan.outputs.tags) }}
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ matrix.tag }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: qnapi-release-${{ matrix.tag }}
+          path: dist
+
+      - name: Create GitHub Release
+        run: |
+          set -eu
+          if [ "${GITHUB_REF#refs/tags/}" = "$GITHUB_REF" ]; then
+            echo "Refusing to create a GitHub Release from a non-tag ref ($GITHUB_REF)" >&2
+            exit 1
+          fi
+          if [ "$GITHUB_REF_NAME" != "$TAG" ]; then
+            echo "Publish tag '$TAG' does not match git tag '$GITHUB_REF_NAME'" >&2
+            exit 1
+          fi
+          sh scripts/release-meta.sh check-tag "$TAG"
+          sh scripts/release-meta.sh release-notes "$TAG" > notes.md
+          prerelease_args=
+          if sh scripts/release-meta.sh is-prerelease "$TAG"; then
+            prerelease_args=--prerelease
+          fi
+          gh release create "$TAG" \
+            --title "QNapi ${TAG}" \
+            --notes-file notes.md \
+            $prerelease_args \
+            dist/*

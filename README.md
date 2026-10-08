@@ -14,7 +14,8 @@ and copyright notices.
 
 ## Binary packages
 
-Binary packages of this fork are published at https://github.com/MikoWhy91/qnapi/releases
+Binary packages of this fork are published at https://github.com/MikoWhy91/qnapi/releases.
+Release notes are in [CHANGELOG.md](CHANGELOG.md).
 
 ## Reporting issues
 
@@ -75,6 +76,9 @@ Useful options (`-D<option>=<value>` when configuring):
 * `QNAPI_BUILD_GUI=OFF` / `QNAPI_BUILD_CLI=OFF` - skip the graphical (`qnapi`) or
   command-line (`qnapic`) application
 * `QNAPI_QT_MAJOR_VERSION=5` or `6` - pick the Qt version explicitly
+* `QNAPI_DISPLAYABLE_VERSION=0.3.0-rc1` - override the version shown in About,
+  `--version` / `--help` and package names (the numeric `QNAPI_VERSION` in
+  `libqnapi/src/version.h` is unchanged; used for prerelease tags)
 * `BUILD_TESTING=OFF` - skip the tests
 * `CMAKE_PREFIX_PATH=/path/to/Qt/6.x/<compiler>` - use a Qt that is not found automatically
 
@@ -118,7 +122,7 @@ The API requires a personal **API key**, which is free:
 1. Create an account at https://www.opensubtitles.com.
 2. Open https://www.opensubtitles.com/en/consumers (*Profile > API consumers*) and create a new consumer
    with the app name **`QNapi`**. QNapi sends the `User-Agent` header `QNapi v<version>`
-   (e.g. `QNapi v0.2.4-snapshot`) with every request, and OpenSubtitles expects the User-Agent to
+   (e.g. `QNapi v0.3.0`) with every request, and OpenSubtitles expects the User-Agent to
    name the application the API key was registered for.
    If you want to download without logging in, enable *allow anonymous downloads* for that consumer.
 3. Paste the key into *Settings > Engines > OpenSubtitles > Configure > API key*.

@@ -10,9 +10,7 @@ target_link_libraries(qnapic PRIVATE libqnapi)
 qnapi_embed_translations(qnapic)
 
 if(WIN32)
-  target_sources(qnapic PRIVATE "${PROJECT_SOURCE_DIR}/win32/qnapi.rc")
-  set_property(SOURCE "${PROJECT_SOURCE_DIR}/win32/qnapi.rc" APPEND PROPERTY
-               INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/win32")
+  target_sources(qnapic PRIVATE "${QNAPI_RC_FILE}")
 endif()
 
 install(TARGETS qnapic RUNTIME DESTINATION ${QNAPI_INSTALL_BINDIR})
