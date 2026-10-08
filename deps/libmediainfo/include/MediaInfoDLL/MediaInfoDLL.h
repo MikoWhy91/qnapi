@@ -2,6 +2,12 @@
  *
  *  Use of this source code is governed by a BSD-style license that can
  *  be found in the License.html file in the root of the source tree.
+ *
+ *  QNapi local edits vs MediaInfo 26.10 (re-apply if this header is updated):
+ *  - MEDIAINFODLL_NAME is wrapped in #ifndef so a build can override the
+ *    library name.
+ *  - MediaInfo::IsReady() compares Handle and MediaInfo_Module to nullptr
+ *    instead of treating the pointers as booleans.
  */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -10,7 +10,7 @@ Vcs-Browser: https://github.com/MikoWhy91/qnapi
 
 Package: qnapi
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, p7zip-full 
+Depends: ${shlibs:Depends}, ${misc:Depends}, p7zip-full, qt6-qpa-plugins
 Description: Qt-based subtitle downloader
  QNapi is graphical and console subtitle downloader that supports several
  subtitle engines like NapiProjekt, OpenSubtitles, Napisy24. Subtitles
