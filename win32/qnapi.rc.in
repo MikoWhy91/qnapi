@@ -1,0 +1,27 @@
+IDI_ICON1               ICON    DISCARDABLE     "@PROJECT_SOURCE_DIR@/win32/qnapi.ico"
+
+#include <windows.h>
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     @QNAPI_VERSION_MAJOR@,@QNAPI_VERSION_MINOR@,@QNAPI_VERSION_PATCH@,0
+PRODUCTVERSION  @QNAPI_VERSION_MAJOR@,@QNAPI_VERSION_MINOR@,@QNAPI_VERSION_PATCH@,0
+
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "FileDescription",    "Aplikacja do pobierania napisow do filmow"
+            VALUE "FileVersion",        "@QNAPI_DISPLAYABLE_VERSION@"
+            VALUE "InternalName",       "QNapi"
+            VALUE "OriginalFilename",   "qnapi.exe"
+            VALUE "ProductName",        "QNapi"
+            VALUE "ProductVersion",     "@QNAPI_DISPLAYABLE_VERSION@"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0415, 1200
+    END
+END

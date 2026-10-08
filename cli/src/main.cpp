@@ -27,6 +27,7 @@
 #include "parser/quietbatchargparser.h"
 #include "parser/showhelpargparser.h"
 #include "parser/showhelplanguagesargparser.h"
+#include "parser/showversionargparser.h"
 #include "parser/showlistargparser.h"
 #include "qnapicommand.h"
 #include "utils/console.h"
@@ -49,6 +50,7 @@ int main(int argc, char **argv) {
 
   const QList<QSharedPointer<CliArgParser>> cliArgParsers = {
       QSharedPointer<CliArgParser>(new ShowHelpArgParser()),
+      QSharedPointer<CliArgParser>(new ShowVersionArgParser()),
       QSharedPointer<CliArgParser>(new ShowHelpLanguagesArgParser()),
       QSharedPointer<CliArgParser>(new QuietBatchArgParser()),
       QSharedPointer<CliArgParser>(new ShowListArgParser()),

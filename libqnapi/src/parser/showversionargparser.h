@@ -13,13 +13,23 @@
 **
 *****************************************************************************/
 
-#ifndef __VERSION__H__
-#define __VERSION__H__
+#ifndef SHOWVERSIONARGPARSER_H
+#define SHOWVERSIONARGPARSER_H
 
-#define QNAPI_VERSION "0.3.0"
-#ifndef QNAPI_DISPLAYABLE_VERSION
-#define QNAPI_DISPLAYABLE_VERSION "0.3.0"
-#endif
-#define QNAPI_URL "https://github.com/MikoWhy91/qnapi"
+#include <QCoreApplication>
+#include "parser/cliargparser.h"
+#include "tr.h"
 
-#endif
+class ShowVersionArgParser : public CliArgParser {
+  Q_DECLARE_CLASS_TR(ShowVersionArgParser)
+
+ public:
+  ShowVersionArgParser();
+
+  virtual QVariant parse(const QStringList& args,
+                         const QNapiConfig& config) const;
+
+  virtual Maybe<HelpInfo> helpInfo() const;
+};
+
+#endif  // SHOWVERSIONARGPARSER_H

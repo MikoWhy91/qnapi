@@ -1,6 +1,11 @@
 @echo off
+if defined QNAPI_DISPLAYABLE_VERSION (
+  echo %QNAPI_DISPLAYABLE_VERSION%
+  goto :eof
+)
 set VERSION_FILE=libqnapi\src\version.h
-cat %VERSION_FILE% | grep QNAPI_DISPLAYABLE_VERSION > tmp.txt
-set /p VERSION_LINE=<tmp.txt
-rem tmp.txt
-echo | set /p dummy=%VERSION_LINE:~35,-1%
+for /f "tokens=3" %%A in ('findstr /C:"#define QNAPI_DISPLAYABLE_VERSION " %VERSION_FILE%') do (
+  set VERSION_TOKEN=%%A
+)
+set VERSION_TOKEN=%VERSION_TOKEN:"=%
+echo %VERSION_TOKEN%

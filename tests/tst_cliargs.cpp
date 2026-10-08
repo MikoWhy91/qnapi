@@ -12,6 +12,7 @@
 #include "parser/quietbatchargparser.h"
 #include "parser/showhelpargparser.h"
 #include "parser/showhelplanguagesargparser.h"
+#include "parser/showversionargparser.h"
 #include "parser/showlistargparser.h"
 #include "qnapicommand.h"
 #include "testutils.h"
@@ -19,6 +20,7 @@
 // the same parsers, in the same order, as qnapic's main()
 static QList<QSharedPointer<CliArgParser>> cliParsers() {
   return {QSharedPointer<CliArgParser>(new ShowHelpArgParser()),
+          QSharedPointer<CliArgParser>(new ShowVersionArgParser()),
           QSharedPointer<CliArgParser>(new ShowHelpLanguagesArgParser()),
           QSharedPointer<CliArgParser>(new QuietBatchArgParser()),
           QSharedPointer<CliArgParser>(new ShowListArgParser()),
@@ -120,6 +122,24 @@ class TestCliArgs : public QObject {
     auto command = result.as<Maybe<CliArgParser::ParsedCommand>>();
     QVERIFY(command);
     QVERIFY(command.value().command.canConvert<QNapiCommand::ShowHelp>());
+  }
+
+  void versionCommand() {
+    for (const QString &flag : QStringList{"-v", "--version"}) {
+      auto result =
+          CliArgParsersExecutor::executeParsers(cliParsers(), {flag}, config);
+      auto command = result.as<Maybe<CliArgParser::ParsedCommand>>();
+      QVERIFY2(command, qPrintable(flag));
+      QVERIFY2(command.value().command.canConvert<QNapiCommand::ShowVersion>(),
+               qPrintable(flag));
+    }
+    QVERIFY(ShowVersionArgParser()
+                .parse({"movie.avi"}, config)
+                .canConvert<CliArgParser::NothingParsed>());
+    Maybe<CliArgParser::HelpInfo> help = ShowVersionArgParser().helpInfo();
+    QVERIFY(help);
+    QCOMPARE(help.value().shortSwitch, QString("-v"));
+    QCOMPARE(help.value().longSwitch, QString("--version"));
   }
 
   void noCommand() {

@@ -818,6 +818,14 @@
     </message>
 </context>
 <context>
+    <name>ShowVersionArgParser</name>
+    <message>
+        <location filename="../libqnapi/src/parser/showversionargparser.cpp" line="32"/>
+        <source>Show version and exit</source>
+        <translation>Mostra la versione ed esce</translation>
+    </message>
+</context>
+<context>
     <name>ShowHelpLanguagesArgParser</name>
     <message>
         <location filename="../libqnapi/src/parser/showhelplanguagesargparser.cpp" line="32"/>

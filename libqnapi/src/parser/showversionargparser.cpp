@@ -13,13 +13,21 @@
 **
 *****************************************************************************/
 
-#ifndef __VERSION__H__
-#define __VERSION__H__
+#include "showversionargparser.h"
+#include "qnapicommand.h"
 
-#define QNAPI_VERSION "0.3.0"
-#ifndef QNAPI_DISPLAYABLE_VERSION
-#define QNAPI_DISPLAYABLE_VERSION "0.3.0"
-#endif
-#define QNAPI_URL "https://github.com/MikoWhy91/qnapi"
+ShowVersionArgParser::ShowVersionArgParser() {}
 
-#endif
+QVariant ShowVersionArgParser::parse(const QStringList& args,
+                                     const QNapiConfig& config) const {
+  if (args.contains("-v") || args.contains("--version")) {
+    return QVariant::fromValue(ParsedCommand{
+        config, QVariant::fromValue(QNapiCommand::ShowVersion())});
+  } else {
+    return QVariant::fromValue(NothingParsed());
+  }
+}
+
+Maybe<CliArgParser::HelpInfo> ShowVersionArgParser::helpInfo() const {
+  return just(HelpInfo{"-v", "--version", "", tr("Show version and exit")});
+}

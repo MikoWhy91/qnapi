@@ -1,8 +1,9 @@
 ; Define your application name
 !define APPNAME "QNapi"
-; makensis /DAPPVER=x.y.z overrides the version
+; makensis /DAPPVER=x.y.z overrides the version (CI/release pass the
+; displayable version from version.h or -DQNAPI_DISPLAYABLE_VERSION)
 !ifndef APPVER
-  !define APPVER "0.2.4-snapshot"
+  !define APPVER "0.3.0"
 !endif
 !define APPNAMEANDVERSION "${APPNAME} ${APPVER}"
 

@@ -1,6 +1,8 @@
 QNapi ChangeLog:
 ================
 
+For 0.3.0 and later, see CHANGELOG.md in the project root (English).
+
 2017-05-19 v0.2.3:
  * mozliwosc wyboru jezyka interfejsu uzytkownika (angielski/polski/włoski) - (thx Fincer, luigino)
  * przebudowany podsystem konfiguracji aplikacji

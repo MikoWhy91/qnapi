@@ -34,6 +34,7 @@
 #include "parser/scandirectoryargparser.h"
 #include "parser/showhelpargparser.h"
 #include "parser/showhelplanguagesargparser.h"
+#include "parser/showversionargparser.h"
 #include "parser/showlistargparser.h"
 #include "parser/showoptionsargparser.h"
 #include "qnapiapp.h"
@@ -52,6 +53,7 @@ int main(int argc, char **argv) {
 
   QList<QSharedPointer<CliArgParser>> cliArgParsers = {
       QSharedPointer<CliArgParser>(new ShowHelpArgParser()),
+      QSharedPointer<CliArgParser>(new ShowVersionArgParser()),
       QSharedPointer<CliArgParser>(new ShowHelpLanguagesArgParser()),
       QSharedPointer<CliArgParser>(new RunCLIAppArgParser()),
       QSharedPointer<CliArgParser>(new QuietBatchArgParser()),
