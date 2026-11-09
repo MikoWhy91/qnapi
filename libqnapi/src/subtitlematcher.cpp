@@ -51,7 +51,7 @@ bool SubtitleMatcher::matchSubtitles(QString subtitlesTmpFilePath,
   result = dryCopy(subtitlesTmpFilePath, targetSubtitlesFilePath);
 #else
   // pod innymi OS-ami wystarczy skopiowac plik
-  result = QFile::copy(subtitlesTmpFilePath, targetSubtitlesFilePath);
+  result = dryCopy(subtitlesTmpFilePath, targetSubtitlesFilePath);
 #endif
 
   if (changePermissions) {
